@@ -11,9 +11,19 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'pedagang') {
 }
 
 require_once '../config/db.php';
+require_once '../config/security.php';
 
-// Get menu_id dari URL
-$menu_id = intval($_GET['id'] ?? 0);
+// Hanya izinkan POST request
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: dashboard.php');
+    exit();
+}
+
+if (!validate_csrf_token($_POST['csrf_token'] ?? '')) {
+    die('Akses tidak sah (Invalid CSRF Token)');
+}
+
+$menu_id = intval($_POST['id'] ?? 0);
 
 if (!$menu_id) {
     header('Location: dashboard.php');

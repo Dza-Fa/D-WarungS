@@ -11,6 +11,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'pedagang') {
 }
 
 require_once '../config/db.php';
+require_once '../config/security.php';
 
 $page_title = 'Profile Penjual';
 
@@ -25,6 +26,9 @@ $error = '';
 
 // Handle profile update
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_profile'])) {
+    if (!validate_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = 'Token keamanan tidak valid.';
+    } else {
     $nama = trim($_POST['nama'] ?? '');
     $email = trim($_POST['email'] ?? '');
     
@@ -47,10 +51,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_profile'])) {
             }
         }
     }
+    }
 }
 
 // Handle password change
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
+    if (!validate_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = 'Token keamanan tidak valid.';
+    } else {
     $current_password = $_POST['current_password'] ?? '';
     $new_password = $_POST['new_password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
@@ -74,10 +82,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
             $error = 'Password lama salah!';
         }
     }
+    }
 }
 
 // Get statistics
-$total_menu = getRow("SELECT COUNT(*) as count FROM menu WHERE warung_id = ?", [$warung['id']])['count'];
+$total_menu = getRow("SELECT COUNT(*) as count FROM menu WHERE warung_id = ?", [$warung['id']])['count'] ?? 0;
 $total_pesanan = getRow(
     "SELECT COUNT(DISTINCT o.id) as count FROM orders o
     JOIN order_items oi ON o.id = oi.order_id
@@ -89,7 +98,7 @@ $total_penjualan = getRow(
     "SELECT SUM(o.total_harga) as total FROM orders o
     JOIN order_items oi ON o.id = oi.order_id
     JOIN menu m ON oi.menu_id = m.id
-    WHERE m.warung_id = ? AND o.status IN ('dibayar', 'diproses', 'siap', 'selesai')",
+    WHERE m.warung_id = ? AND o.status IN ('dibayar', 'diproses', 'siap')",
     [$warung['id']]
 )['total'] ?? 0;
 ?>
@@ -149,6 +158,7 @@ $total_penjualan = getRow(
     </div>
     
     <form method="POST" class="card-body">
+        <?php csrf_field(); ?>
         <div class="form-row">
             <div class="form-group">
                 <label for="nama">Nama Lengkap</label>
@@ -176,6 +186,7 @@ $total_penjualan = getRow(
     </div>
     
     <form method="POST" class="card-body">
+        <?php csrf_field(); ?>
         <div class="form-group">
             <label for="current_password">Password Saat Ini</label>
             <input type="password" id="current_password" name="current_password" required>

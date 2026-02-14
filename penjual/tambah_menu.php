@@ -11,6 +11,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'pedagang') {
 }
 
 require_once '../config/db.php';
+require_once '../config/security.php'; // Tambahkan security helper
+require_once '../config/helpers.php'; // Tambahkan file helper
 
 $page_title = 'Tambah Menu';
 
@@ -27,10 +29,15 @@ $message = '';
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_menu'])) {
+    if (!validate_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = 'Sesi tidak valid atau sudah kedaluwarsa. Silakan coba lagi.';
+        // Stop execution to prevent CSRF
+    } else {
     $nama_menu = trim($_POST['nama_menu'] ?? '');
     $deskripsi = trim($_POST['deskripsi'] ?? '');
     $harga = intval($_POST['harga'] ?? 0);
     $stok = intval($_POST['stok'] ?? 0);
+    $foto = NULL;
     
     // Validasi
     if (empty($nama_menu)) {
@@ -40,15 +47,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_menu'])) {
     } elseif ($stok < 0) {
         $error = 'Stok tidak boleh negatif!';
     } else {
-        // Insert menu dengan prepared statement
-        $query = "INSERT INTO menu (warung_id, nama_menu, deskripsi, harga, stok) VALUES (?, ?, ?, ?, ?)";
-        if (executeUpdate($query, [$warung['id'], $nama_menu, $deskripsi, $harga, $stok])) {
-            header('Location: dashboard.php?success=Menu berhasil ditambahkan');
-            exit();
-        } else {
-            $error = 'Gagal menambahkan menu!';
+        // Handle file upload
+        if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+            $upload_result = handleFileUpload($_FILES['foto'], '../assets/uploads/menu/', 'menu');
+            if ($upload_result['success']) {
+                $foto = $upload_result['filename'];
+            } else {
+                $error = $upload_result['error'];
+            }
+        }
+        
+        if (!$error) {
+            // Insert menu dengan prepared statement
+            $query = "INSERT INTO menu (warung_id, nama_menu, deskripsi, harga, stok, gambar) VALUES (?, ?, ?, ?, ?, ?)";
+            if (execute($query, [$warung['id'], $nama_menu, $deskripsi, $harga, $stok, $foto])) {
+                header('Location: dashboard.php?success=' . urlencode('Menu berhasil ditambahkan'));
+                exit();
+            } else {
+                $error = 'Gagal menambahkan menu!';
+            }
         }
     }
+}
 }
 ?>
 <?php require_once '../includes/header.php'; ?>
@@ -69,7 +89,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_menu'])) {
 <?php endif; ?>
 
 <div class="card" style="max-width: 600px;">
-    <form method="POST" class="card-body">
+    <form method="POST" class="card-body" enctype="multipart/form-data">
+        <?php csrf_field(); ?>
         <div class="form-group">
             <label for="nama_menu">Nama Menu *</label>
             <input type="text" id="nama_menu" name="nama_menu" placeholder="Contoh: Nasi Goreng" required>
@@ -90,6 +111,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_menu'])) {
                 <label for="stok">Stok Awal *</label>
                 <input type="number" id="stok" name="stok" placeholder="10" min="0" required>
             </div>
+        </div>
+        
+        <!-- Photo Upload Section -->
+        <div class="form-group">
+            <label for="foto">Foto Menu</label>
+            <p style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #666;">Unggah foto menu Anda (opsional):</p>
+            
+            <input type="file" id="foto" name="foto" accept="image/jpeg,image/png,image/gif,image/webp" style="padding: 0.75rem; border: 2px dashed #ddd; border-radius: 5px; width: 100%; box-sizing: border-box; cursor: pointer;">
+            
+            <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; color: #999;">
+                Format: JPG, PNG, GIF, WebP | Max: 5MB
+            </p>
         </div>
         
         <div class="card-footer">

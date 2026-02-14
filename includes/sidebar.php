@@ -22,7 +22,23 @@
             </a>
             <a href="/D-WarungS/pembeli/pesanan.php" class="nav-item <?php echo active('pesanan.php'); ?>">
                 <i class="fas fa-receipt"></i>
-                <span>Pesanan Saya</span>
+                <span>Pesanan Aktif</span>
+            </a>
+            <a href="/D-WarungS/pembeli/pesanan_selesai.php" class="nav-item <?php echo active('pesanan_selesai.php'); ?>">
+                <i class="fas fa-check-circle"></i>
+                <span>Riwayat Pesanan</span>
+            </a>
+            <a href="/D-WarungS/pembeli/favorit.php" class="nav-item <?php echo active('favorit.php'); ?>">
+                <i class="fas fa-heart"></i>
+                <span>Favorit</span>
+            </a>
+            <a href="/D-WarungS/pembeli/rating.php" class="nav-item <?php echo active('rating.php'); ?>">
+                <i class="fas fa-star"></i>
+                <span>Rating & Review</span>
+            </a>
+            <a href="/D-WarungS/pembeli/notifikasi.php" class="nav-item <?php echo active('notifikasi.php'); ?>">
+                <i class="fas fa-bell"></i>
+                <span>Notifikasi</span>
             </a>
             <a href="/D-WarungS/pembeli/profile.php" class="nav-item <?php echo active('profile.php'); ?>">
                 <i class="fas fa-user"></i>
@@ -41,6 +57,18 @@
             <a href="/D-WarungS/penjual/pesanan.php" class="nav-item <?php echo active('pesanan.php'); ?>">
                 <i class="fas fa-receipt"></i>
                 <span>Pesanan Masuk</span>
+            </a>
+            <a href="/D-WarungS/penjual/pesanan_selesai.php" class="nav-item <?php echo active('pesanan_selesai.php'); ?>">
+                <i class="fas fa-check-circle"></i>
+                <span>Pesanan Selesai</span>
+            </a>
+            <a href="/D-WarungS/penjual/rating_menu.php" class="nav-item <?php echo active('rating_menu.php'); ?>">
+                <i class="fas fa-star"></i>
+                <span>Rating Menu</span>
+            </a>
+            <a href="/D-WarungS/penjual/notifikasi.php" class="nav-item <?php echo active('notifikasi.php'); ?>">
+                <i class="fas fa-bell"></i>
+                <span>Notifikasi</span>
             </a>
             <a href="/D-WarungS/penjual/profile.php" class="nav-item <?php echo active('profile.php'); ?>">
                 <i class="fas fa-user"></i>

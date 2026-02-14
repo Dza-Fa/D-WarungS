@@ -11,6 +11,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'kasir') {
 }
 
 require_once '../config/db.php';
+require_once '../config/queries.php';
 
 $page_title = 'Laporan Penjualan';
 
@@ -27,57 +28,20 @@ if (!$end_date) {
 }
 
 // Get penjualan berdasarkan periode
-$base_query = "WHERE o.status IN ('dibayar', 'diproses', 'siap', 'selesai') AND DATE(o.waktu_pesan) BETWEEN ? AND ?";
-
-$total_penjualan = getRow(
-    "SELECT SUM(o.total_harga) as total FROM orders o $base_query",
-    [$start_date, $end_date]
-)['total'] ?? 0;
-
-$total_transaksi = getRow(
-    "SELECT COUNT(*) as count FROM orders o $base_query",
-    [$start_date, $end_date]
-)['count'];
-
-$rata_transaksi = $total_transaksi > 0 ? $total_penjualan / $total_transaksi : 0;
+$stats = getSalesReportStats($start_date, $end_date);
+$total_penjualan = $stats['total_penjualan'];
+$total_transaksi = $stats['total_transaksi'];
+$rata_transaksi = $stats['rata_transaksi'];
 
 // Get penjualan per warung
-$warung_sales = getRows(
-    "SELECT w.id, w.nama_warung, SUM(o.total_harga) as total, COUNT(DISTINCT o.id) as count
-    FROM orders o
-    JOIN order_items oi ON o.id = oi.order_id
-    JOIN menu m ON oi.menu_id = m.id
-    JOIN warung w ON m.warung_id = w.id
-    WHERE o.status IN ('dibayar', 'diproses', 'siap', 'selesai') AND DATE(o.waktu_pesan) BETWEEN ? AND ?
-    GROUP BY w.id, w.nama_warung
-    ORDER BY total DESC",
-    [$start_date, $end_date]
-);
+$warung_sales = getSalesByWarung($start_date, $end_date);
 
 // Get top menu
-$top_menu = getRows(
-    "SELECT m.nama_menu, w.nama_warung, SUM(oi.qty) as total_qty, SUM(oi.subtotal) as total_penjualan
-    FROM order_items oi
-    JOIN menu m ON oi.menu_id = m.id
-    JOIN warung w ON m.warung_id = w.id
-    JOIN orders o ON oi.order_id = o.id
-    WHERE o.status IN ('dibayar', 'diproses', 'siap', 'selesai') AND DATE(o.waktu_pesan) BETWEEN ? AND ?
-    GROUP BY m.id
-    ORDER BY total_qty DESC
-    LIMIT 10",
-    [$start_date, $end_date]
-);
+$top_menu = getTopSellingMenus($start_date, $end_date, 10);
 
 // Get transaksi detail
-$transaksi = getRows(
-    "SELECT o.id, o.total_harga, o.waktu_pesan, o.status, u.nama, 
-    (SELECT GROUP_CONCAT(m.nama_menu) FROM order_items oi JOIN menu m ON oi.menu_id = m.id WHERE oi.order_id = o.id) as items
-    FROM orders o
-    JOIN users u ON o.pembeli_id = u.id
-    WHERE o.status IN ('dibayar', 'diproses', 'siap', 'selesai') AND DATE(o.waktu_pesan) BETWEEN ? AND ?
-    ORDER BY o.waktu_pesan DESC",
-    [$start_date, $end_date]
-);
+// Pindahkan query ke file `queries.php` agar terpusat dan rapi
+$transaksi = getTransactionsForReport($start_date, $end_date);
 ?>
 <?php require_once '../includes/header.php'; ?>
 <?php require_once '../includes/sidebar.php'; ?>
@@ -268,6 +232,11 @@ $transaksi = getRows(
         </div>
     <?php endif; ?>
 </div>
+
+<!-- Pindahkan CSS dan JS ke file terpisah untuk kebersihan kode -->
+<link rel="stylesheet" href="/D-WarungS/assets/css/kasir-notifications.css">
+<script src="/D-WarungS/assets/js/realtime-notifications.js?v=<?php echo time(); ?>"></script>
+<script src="/D-WarungS/assets/js/kasir-penjualan.js"></script>
 
 </main>
 <?php require_once '../includes/footer.php'; ?>

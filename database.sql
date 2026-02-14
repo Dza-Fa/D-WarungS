@@ -53,10 +53,13 @@ CREATE TABLE menu (
     harga INT NOT NULL,
     stok INT NOT NULL DEFAULT 0,
     gambar VARCHAR(255),
+    gambar_path VARCHAR(255),
+    status_aktif TINYINT(1) DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (warung_id) REFERENCES warung(id) ON DELETE CASCADE,
-    INDEX idx_warung_id (warung_id)
+    INDEX idx_warung_id (warung_id),
+    INDEX idx_status_aktif (status_aktif)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ====================================================
@@ -69,13 +72,17 @@ CREATE TABLE orders (
     total_harga INT NOT NULL,
     catatan TEXT,
     waktu_pesan DATETIME DEFAULT CURRENT_TIMESTAMP,
+    waktu_siap DATETIME,
     waktu_selesai DATETIME,
+    waktu_pembeli_confirm DATETIME,
+    is_confirmed TINYINT(1) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (pembeli_id) REFERENCES users(id) ON DELETE CASCADE,
     INDEX idx_pembeli_id (pembeli_id),
     INDEX idx_status (status),
-    INDEX idx_waktu_pesan (waktu_pesan)
+    INDEX idx_waktu_pesan (waktu_pesan),
+    INDEX idx_is_confirmed (is_confirmed)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ====================================================
@@ -93,6 +100,61 @@ CREATE TABLE order_items (
     FOREIGN KEY (menu_id) REFERENCES menu(id),
     INDEX idx_order_id (order_id),
     INDEX idx_menu_id (menu_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ====================================================
+-- TABLE RATINGS & REVIEWS
+-- ====================================================
+CREATE TABLE ratings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    pembeli_id INT NOT NULL,
+    menu_id INT NOT NULL,
+    rating INT NOT NULL COMMENT '1-5 stars',
+    review TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+    FOREIGN KEY (pembeli_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (menu_id) REFERENCES menu(id) ON DELETE CASCADE,
+    INDEX idx_menu_id (menu_id),
+    INDEX idx_pembeli_id (pembeli_id),
+    INDEX idx_order_id (order_id),
+    UNIQUE KEY unique_order_menu (order_id, menu_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ====================================================
+-- TABLE FAVORITES (Menu Favorit)
+-- ====================================================
+CREATE TABLE favorites (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    pembeli_id INT NOT NULL,
+    menu_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (pembeli_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (menu_id) REFERENCES menu(id) ON DELETE CASCADE,
+    INDEX idx_pembeli_id (pembeli_id),
+    INDEX idx_menu_id (menu_id),
+    UNIQUE KEY unique_pembeli_menu (pembeli_id, menu_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ====================================================
+-- TABLE NOTIFICATION (Pemberitahuan)
+-- ====================================================
+CREATE TABLE notifications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    order_id INT,
+    type VARCHAR(50) NOT NULL COMMENT 'order_update, review, delivery',
+    message TEXT NOT NULL,
+    is_read TINYINT(1) DEFAULT 0,
+    role VARCHAR(20) COMMENT 'pembeli, pedagang, atau kasir',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE SET NULL,
+    INDEX idx_user_id (user_id),
+    INDEX idx_is_read (is_read),
+    INDEX idx_created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ====================================================
@@ -176,6 +238,46 @@ INSERT INTO order_items (order_id, menu_id, qty, harga_satuan, subtotal) VALUES
 INSERT INTO order_items (order_id, menu_id, qty, harga_satuan, subtotal) VALUES
 (5, 14, 2, 21000, 42000),
 (5, 7, 1, 12000, 12000);
+
+-- ====================================================
+-- INSERT SAMPLE RATINGS & REVIEWS
+-- ====================================================
+
+INSERT INTO ratings (order_id, pembeli_id, menu_id, rating, review) VALUES
+(1, 1, 1, 5, 'Nasi kuning sangat nikmat dan gurih! Penyajiannya juga cepat. Puas!'),
+(1, 1, 4, 4, 'Telur ceploknya matang sempurna, tapi bisa lebih banyak'),
+(2, 1, 3, 5, 'Ayam gorengnya crispy dan dagingnya empuk. Recommended!'),
+(3, 2, 6, 4, 'Soto ayamnya enak, rempahnya berasa. Tapi agak tawar'),
+(4, 2, 9, 5, 'Bakso sapi premium sangat enak! Ukurannya besar dan daging sapi asli');
+
+-- ====================================================
+-- INSERT SAMPLE FAVORITES
+-- ====================================================
+
+INSERT INTO favorites (pembeli_id, menu_id) VALUES
+(1, 1),
+(1, 3),
+(1, 9),
+(2, 6),
+(2, 13),
+(3, 5),
+(3, 12),
+(4, 14),
+(4, 7);
+
+-- ====================================================  
+-- INSERT SAMPLE NOTIFICATIONS
+-- ====================================================
+
+INSERT INTO notifications (user_id, order_id, type, message, is_read, role) VALUES
+(1, 1, 'order_update', 'Pesanan #1 Anda sedang diproses oleh warung', 1, 'pembeli'),
+(1, 1, 'order_update', 'Pesanan #1 Anda siap diambil!', 1, 'pembeli'),
+(1, 2, 'order_update', 'Pesanan #2 Anda sudah dibayarkan. Terima kasih!', 1, 'pembeli'),
+(2, 3, 'order_update', 'Pesanan #3 Anda sedang diproses', 1, 'pembeli'),
+(2, 4, 'order_update', 'Pesanan #4 Anda siap diambil!', 0, 'pembeli'),
+(5, NULL, 'review', 'Anda menerima review baru untuk menu Nasi Kuning Biasa', 0, 'pedagang'),
+(6, NULL, 'review', 'Anda menerima ulasan 5 bintang untuk Soto Ayam Biasa', 1, 'pedagang'),
+(3, 5, 'delivery', 'Pesanan Anda baru saja masuk! Akan diproses segera', 1, 'pembeli');
 
 -- ====================================================
 -- VERIFIKASI DATA

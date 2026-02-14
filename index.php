@@ -21,9 +21,9 @@ if (isset($_SESSION['user_id'])) {
 }
 
 // Get count data untuk statistik
-$total_warung = getRow("SELECT COUNT(*) as count FROM warung")['count'];
-$total_menu = getRow("SELECT COUNT(*) as count FROM menu")['count'];
-$total_orders = getRow("SELECT COUNT(*) as count FROM orders")['count'];
+$total_warung = getRow("SELECT COUNT(*) as count FROM warung")['count'] ?? 0;
+$total_menu = getRow("SELECT COUNT(*) as count FROM menu")['count'] ?? 0;
+$total_orders = getRow("SELECT COUNT(*) as count FROM orders")['count'] ?? 0;
 ?>
 <!DOCTYPE html>
 <html lang="id">

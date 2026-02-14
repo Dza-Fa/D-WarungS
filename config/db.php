@@ -77,7 +77,12 @@ function executeQuery($query, $params = [], $types = '')
             }
         }
         
-        $stmt->bind_param($types, ...$params);
+        // Fix: bind_param requires references, not values
+        $bind_params = [];
+        foreach ($params as $key => $value) {
+            $bind_params[$key] = &$params[$key];
+        }
+        $stmt->bind_param($types, ...$bind_params);
     }
     
     if (!$stmt->execute()) {
@@ -135,6 +140,17 @@ function executeUpdate($query, $params = [])
 }
 
 /**
+ * Alias untuk execute INSERT, UPDATE, DELETE (sama dengan executeUpdate)
+ * @param string $query SQL query with ? placeholders
+ * @param array $params Parameters to bind
+ * @return bool true if success
+ */
+function execute($query, $params = [])
+{
+    return executeUpdate($query, $params);
+}
+
+/**
  * Get last inserted ID
  * @return int Last insert id
  */
@@ -185,4 +201,8 @@ function formatDateTime($datetime, $format = 'd M Y H:i')
     $time = strtotime($datetime);
     return date($format, $time);
 }
-?>
+
+// Include helper files
+require_once __DIR__ . '/helpers.php';
+require_once __DIR__ . '/validators.php';
+require_once __DIR__ . '/queries.php';

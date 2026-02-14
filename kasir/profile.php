@@ -11,6 +11,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'kasir') {
 }
 
 require_once '../config/db.php';
+require_once '../config/security.php';
 
 $page_title = 'Profile Kasir';
 
@@ -22,6 +23,9 @@ $error = '';
 
 // Handle profile update
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_profile'])) {
+    if (!validate_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = 'Token keamanan tidak valid.';
+    } else {
     $nama = trim($_POST['nama'] ?? '');
     $email = trim($_POST['email'] ?? '');
     
@@ -44,10 +48,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_profile'])) {
             }
         }
     }
+    }
 }
 
 // Handle password change
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
+    if (!validate_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = 'Token keamanan tidak valid.';
+    } else {
     $current_password = $_POST['current_password'] ?? '';
     $new_password = $_POST['new_password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
@@ -71,12 +79,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
             $error = 'Password lama salah!';
         }
     }
+    }
 }
 
 // Get statistics
-$pembayaran_divalidasi = getRow("SELECT COUNT(*) as count FROM orders WHERE status != 'menunggu'")['count'];
-$total_penjualan = getRow("SELECT SUM(total_harga) as total FROM orders WHERE status IN ('dibayar', 'diproses', 'siap', 'selesai')")['total'] ?? 0;
-$pembayaran_menunggu = getRow("SELECT COUNT(*) as count FROM orders WHERE status = 'menunggu'")['count'];
+$pembayaran_divalidasi = getRow("SELECT COUNT(*) as count FROM orders WHERE status != 'menunggu'")['count'] ?? 0;
+$total_penjualan = getRow("SELECT SUM(total_harga) as total FROM orders WHERE status IN ('dibayar', 'diproses', 'siap')")["total"] ?? 0;
+$pembayaran_menunggu = getRow("SELECT COUNT(*) as count FROM orders WHERE status = 'menunggu'")['count'] ?? 0;
 ?>
 <?php require_once '../includes/header.php'; ?>
 <?php require_once '../includes/sidebar.php'; ?>
@@ -134,6 +143,7 @@ $pembayaran_menunggu = getRow("SELECT COUNT(*) as count FROM orders WHERE status
     </div>
     
     <form method="POST" class="card-body">
+        <?php csrf_field(); ?>
         <div class="form-row">
             <div class="form-group">
                 <label for="nama">Nama Lengkap</label>
@@ -161,6 +171,7 @@ $pembayaran_menunggu = getRow("SELECT COUNT(*) as count FROM orders WHERE status
     </div>
     
     <form method="POST" class="card-body">
+        <?php csrf_field(); ?>
         <div class="form-group">
             <label for="current_password">Password Saat Ini</label>
             <input type="password" id="current_password" name="current_password" required>

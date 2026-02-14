@@ -11,6 +11,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'pedagang') {
 }
 
 require_once '../config/db.php';
+require_once '../config/security.php'; // Tambahkan security helper
+require_once '../config/helpers.php'; // Tambahkan file helper
 
 $page_title = 'Edit Menu';
 
@@ -43,26 +45,51 @@ $message = '';
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_menu'])) {
-    $nama_menu = trim($_POST['nama_menu'] ?? '');
-    $deskripsi = trim($_POST['deskripsi'] ?? '');
-    $harga = intval($_POST['harga'] ?? 0);
-    $stok = intval($_POST['stok'] ?? 0);
-    
-    // Validasi
-    if (empty($nama_menu)) {
-        $error = 'Nama menu harus diisi!';
-    } elseif ($harga <= 0) {
-        $error = 'Harga harus lebih dari 0!';
-    } elseif ($stok < 0) {
-        $error = 'Stok tidak boleh negatif!';
+    if (!validate_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = 'Sesi tidak valid atau sudah kedaluwarsa. Silakan coba lagi.';
+        // Stop execution to prevent CSRF
     } else {
-        // Update menu dengan prepared statement
-        $query = "UPDATE menu SET nama_menu = ?, deskripsi = ?, harga = ?, stok = ? WHERE id = ?";
-        if (executeUpdate($query, [$nama_menu, $deskripsi, $harga, $stok, $menu_id])) {
-            header('Location: dashboard.php?success=Menu berhasil diperbarui');
-            exit();
+        $nama_menu = trim($_POST['nama_menu'] ?? '');
+        $deskripsi = trim($_POST['deskripsi'] ?? '');
+        $harga = intval($_POST['harga'] ?? 0);
+        $stok = intval($_POST['stok'] ?? 0);
+        $foto = $menu['gambar']; // keep existing photo by default
+        
+        // Validasi
+        if (empty($nama_menu)) {
+            $error = 'Nama menu harus diisi!';
+        } elseif ($harga <= 0) {
+            $error = 'Harga harus lebih dari 0!';
+        } elseif ($stok < 0) {
+            $error = 'Stok tidak boleh negatif!';
         } else {
-            $error = 'Gagal memperbarui menu!';
+            // Handle file upload
+            if (isset($_FILES['foto']) && !empty($_FILES['foto']['name']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+                $upload_result = handleFileUpload($_FILES['foto'], '../assets/uploads/menu/', 'menu_' . $menu_id);
+                if ($upload_result['success']) {
+                    // Delete old photo if exists and a new one is uploaded
+                    if (!empty($menu['gambar']) && file_exists('../assets/uploads/menu/' . $menu['gambar'])) {
+                        unlink('../assets/uploads/menu/' . $menu['gambar']);
+                    }
+                    $foto = $upload_result['filename'];
+                    $message = 'Foto menu berhasil diperbarui!';
+                } else {
+                    $error = $upload_result['error'];
+                }
+            }
+            
+            if (!$error) {
+                // Update menu dengan prepared statement
+                $query = "UPDATE menu SET nama_menu = ?, deskripsi = ?, harga = ?, stok = ?, gambar = ? WHERE id = ?";
+                if (execute($query, [$nama_menu, $deskripsi, $harga, $stok, $foto, $menu_id])) {
+                    // Refresh menu data
+                    $menu = getRow("SELECT * FROM menu WHERE id = ?", [$menu_id]);
+                    header('Location: dashboard.php?success=' . urlencode('Menu berhasil diperbarui!'));
+                    exit();
+                } else {
+                    $error = 'Gagal memperbarui menu!';
+                }
+            }
         }
     }
 }
@@ -91,7 +118,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_menu'])) {
 <?php endif; ?>
 
 <div class="card" style="max-width: 600px;">
-    <form method="POST" class="card-body">
+    <form method="POST" class="card-body" enctype="multipart/form-data">
+        <?php csrf_field(); ?>
         <div class="form-group">
             <label for="nama_menu">Nama Menu *</label>
             <input type="text" id="nama_menu" name="nama_menu" value="<?php echo esc($menu['nama_menu']); ?>" required>
@@ -112,6 +140,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_menu'])) {
                 <label for="stok">Stok *</label>
                 <input type="number" id="stok" name="stok" value="<?php echo $menu['stok']; ?>" min="0" required>
             </div>
+        </div>
+        
+        <!-- Photo Upload Section -->
+        <div class="form-group">
+            <label for="foto">Foto Menu</label>
+            
+            <?php if (!empty($menu['gambar']) && file_exists('../assets/uploads/menu/' . $menu['gambar'])): ?>
+            <div style="margin-bottom: 1rem;">
+                <p style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #666;"><strong>Foto saat ini:</strong></p>
+                <img src="../assets/uploads/menu/<?php echo esc($menu['gambar']); ?>" 
+                     alt="<?php echo esc($menu['nama_menu']); ?>"
+                     style="max-width: 200px; max-height: 200px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            </div>
+            <p style="margin: 0.5rem 0; font-size: 0.85rem; color: #999;">Unggah foto baru untuk mengganti</p>
+            <?php else: ?>
+            <p style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #666;">Belum ada foto. Unggah foto menu Anda:</p>
+            <?php endif; ?>
+            
+            <input type="file" id="foto" name="foto" accept="image/jpeg,image/png,image/gif,image/webp" style="padding: 0.75rem; border: 2px dashed #ddd; border-radius: 5px; width: 100%; box-sizing: border-box; cursor: pointer;">
+            
+            <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; color: #999;">
+                Format: JPG, PNG, GIF, WebP | Max: 5MB
+            </p>
         </div>
         
         <div style="background: #f8f9fa; padding: 1rem; border-radius: 5px; margin-bottom: 1.5rem;">

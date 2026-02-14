@@ -11,25 +11,91 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'pembeli') {
 }
 
 require_once '../config/db.php';
+require_once '../config/security.php';
 
-$page_title = 'Pesanan Saya';
+$page_title = 'Pesanan Aktif';
 
-// Get pesanan detail jika ada pesanan_id
+// Handle mark notification as read (AJAX)
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['mark_read'])) {
+    $notification_id = intval($_POST['notification_id'] ?? 0);
+    if ($notification_id) {
+        execute("UPDATE notifications SET is_read = 1 WHERE id = ? AND user_id = ?", [$notification_id, $_SESSION['user_id']]);
+    }
+    exit;
+}
+
+// Handle pesanan confirmation
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['confirm_pesanan'])) {
+    if (validate_csrf_token($_POST['csrf_token'] ?? '')) {
+    $pesanan_id = intval($_POST['pesanan_id']);
+    $pesanan = getRow("SELECT * FROM orders WHERE id = ? AND pembeli_id = ?", [$pesanan_id, $_SESSION['user_id']]);
+    
+    if ($pesanan && $pesanan['status'] == 'siap') {
+        $query = "UPDATE orders SET is_confirmed = 1 WHERE id = ?";
+        if (execute($query, [$pesanan_id])) {
+            // Kirim notifikasi ke penjual bahwa pesanan telah diterima
+            $sellers = getRows("
+                SELECT DISTINCT w.pemilik_id 
+                FROM order_items oi
+                JOIN menu m ON oi.menu_id = m.id
+                JOIN warung w ON m.warung_id = w.id
+                WHERE oi.order_id = ?
+            ", [$pesanan_id]);
+
+            foreach ($sellers as $seller) {
+                $msg_seller = "Pesanan #$pesanan_id telah diterima oleh pembeli. Transaksi selesai.";
+                execute("INSERT INTO notifications (user_id, order_id, type, message, role, is_read) VALUES (?, ?, 'order_update', ?, 'pedagang', 0)", 
+                    [$seller['pemilik_id'], $pesanan_id, $msg_seller]);
+            }
+            
+            header('Location: pesanan.php?pesanan_id=' . $pesanan_id . '&confirmed=1');
+            exit();
+        }
+    }
+    }
+}
+
+// Handle pesanan cancellation
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['cancel_pesanan'])) {
+    if (validate_csrf_token($_POST['csrf_token'] ?? '')) {
+    $pesanan_id = intval($_POST['pesanan_id']);
+    $pesanan = getRow("SELECT * FROM orders WHERE id = ? AND pembeli_id = ?", [$pesanan_id, $_SESSION['user_id']]);
+    
+    // Can only cancel if status is 'menunggu' or 'dibayar'
+    if ($pesanan && in_array($pesanan['status'], ['menunggu', 'dibayar'])) {
+        $query = "UPDATE orders SET status = 'batal' WHERE id = ?";
+        if (execute($query, [$pesanan_id])) {
+            // Kembalikan stok
+            $items = getRows("SELECT menu_id, qty FROM order_items WHERE order_id = ?", [$pesanan_id]);
+            foreach ($items as $item) {
+                execute("UPDATE menu SET stok = stok + ? WHERE id = ?", [$item['qty'], $item['menu_id']]);
+            }
+            
+            // Log activity
+            logActivity($_SESSION['user_id'], 'cancel_order', 'Cancelled order #' . $pesanan_id);
+            header('Location: pesanan.php?pesanan_id=' . $pesanan_id . '&cancelled=1');
+            exit();
+        }
+    }
+    }
+}
+
+// Get pesanan detail jika ada pesanan_id (bisa confirmed atau belum)
 $pesanan_detail = null;
 if (isset($_GET['pesanan_id'])) {
     $pesanan_id = intval($_GET['pesanan_id']);
     $pesanan_detail = getRow("SELECT * FROM orders WHERE id = ? AND pembeli_id = ?", [$pesanan_id, $_SESSION['user_id']]);
 }
 
-// Get semua pesanan pembeli
-$query = "SELECT * FROM orders WHERE pembeli_id = ? ORDER BY waktu_pesan DESC";
+// Get pesanan yang MASIH BERLANGSUNG (belum dikonfirmasi dan tidak dibatalkan)
+$query = "SELECT * FROM orders WHERE pembeli_id = ? AND is_confirmed = 0 AND status != 'batal' ORDER BY waktu_pesan DESC";
 $pesanan = getRows($query, [$_SESSION['user_id']]);
 
-// Get status stats
+// Get status stats HANYA untuk pesanan yang belum dikonfirmasi
 $status_stats = [];
-$status_list = ['menunggu', 'dibayar', 'diproses', 'siap', 'selesai', 'batal'];
+$status_list = ['menunggu', 'dibayar', 'diproses', 'siap', 'batal'];
 foreach ($status_list as $status) {
-    $count = getRow("SELECT COUNT(*) as count FROM orders WHERE pembeli_id = ? AND status = ?", [$_SESSION['user_id'], $status])['count'];
+    $count = getRow("SELECT COUNT(*) as count FROM orders WHERE pembeli_id = ? AND status = ? AND is_confirmed = 0", [$_SESSION['user_id'], $status])['count'];
     if ($count > 0) {
         $status_stats[$status] = $count;
     }
@@ -39,9 +105,21 @@ foreach ($status_list as $status) {
 <?php require_once '../includes/sidebar.php'; ?>
 
 <div class="page-header">
-    <h1 class="page-title">📦 Pesanan Saya</h1>
-    <p class="page-subtitle">Kelola semua pesanan Anda</p>
+    <h1 class="page-title">📦 Pesanan Aktif</h1>
+    <p class="page-subtitle">Pesanan yang sedang berlangsung</p>
 </div>
+
+<?php if (isset($_GET['confirmed']) && $_GET['confirmed'] == '1'): ?>
+    <div class="alert alert-success">
+        ✓ Pesanan berhasil dikonfirmasi! Data akan diperbarui dalam sistem.
+    </div>
+<?php endif; ?>
+
+<?php if (isset($_GET['cancelled']) && $_GET['cancelled'] == '1'): ?>
+    <div class="alert alert-warning">
+        ✓ Pesanan berhasil dibatalkan. Pesanan ini tidak akan diproses lebih lanjut.
+    </div>
+<?php endif; ?>
 
 <?php if ($pesanan_detail && isset($_GET['pesanan_id'])): ?>
     <div class="card" style="margin-bottom: 2rem;">
@@ -73,6 +151,18 @@ foreach ($status_list as $status) {
                 </div>
             </div>
             
+            <?php if ($pesanan_detail['is_confirmed'] == 1): ?>
+                <div style="margin-top: 1.5rem; padding: 1rem; background: #d4edda; border-left: 4px solid #28a745; border-radius: 5px;">
+                    <strong style="color: #155724;">✓ Pesanan Sudah Dikonfirmasi Diterima</strong><br>
+                    <span style="color: #155724; font-size: 0.9rem;">Terima kasih telah mengkonfirmasi pesanan Anda.</span>
+                </div>
+            <?php elseif ($pesanan_detail['status'] == 'siap'): ?>
+                <div style="margin-top: 1.5rem; padding: 1rem; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 5px;">
+                    <strong style="color: #856404;">⚠️ Pesanan Siap Diambil</strong><br>
+                    <span style="color: #856404; font-size: 0.9rem;">Pesanan Anda sudah siap. Silakan ambil dan konfirmasi penerimaan.</span>
+                </div>
+            <?php endif; ?>
+            
             <div style="margin-top: 2rem;">
                 <h4 style="margin-bottom: 1rem;">Item Pesanan:</h4>
                 <?php
@@ -102,7 +192,36 @@ foreach ($status_list as $status) {
         </div>
         
         <div class="card-footer">
-            <a href="pesanan.php" class="btn btn-secondary">← Kembali</a>
+            <a href="<?php echo $pesanan_detail['is_confirmed'] ? 'pesanan_selesai.php' : 'pesanan.php'; ?>" class="btn btn-secondary">
+                ← <?php echo $pesanan_detail['is_confirmed'] ? 'Kembali ke Riwayat' : 'Kembali'; ?>
+            </a>
+            
+            <?php if ($pesanan_detail['is_confirmed'] == 1): ?>
+                <a href="rating.php" class="btn btn-warning">
+                    ⭐ Beri Rating & Review
+                </a>
+            <?php elseif ($pesanan_detail['status'] == 'siap' && !$pesanan_detail['is_confirmed']): ?>
+                <form method="POST" style="display: inline;">
+                    <?php csrf_field(); ?>
+                    <input type="hidden" name="pesanan_id" value="<?php echo $pesanan_detail['id']; ?>">
+                    <button type="submit" name="confirm_pesanan" class="btn btn-success">
+                        ✓ Konfirmasi Pesanan Diterima
+                    </button>
+                </form>
+            <?php elseif (in_array($pesanan_detail['status'], ['menunggu', 'dibayar']) && !$pesanan_detail['is_confirmed']): ?>
+                <form method="POST" style="display: inline;" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pesanan ini?');";>
+                    <?php csrf_field(); ?>
+                    <input type="hidden" name="pesanan_id" value="<?php echo $pesanan_detail['id']; ?>">
+                    <button type="submit" name="cancel_pesanan" class="btn btn-danger">
+                        ✕ Batalkan Pesanan
+                    </button>
+                </form>
+            <?php elseif ($pesanan_detail['status'] == 'batal'): ?>
+                <div style="padding: 1rem; background: #f8d7da; border-left: 4px solid #dc3545; border-radius: 5px; display: inline-block;">
+                    <strong style="color: #721c24;">✕ Pesanan Dibatalkan</strong><br>
+                    <span style="color: #721c24; font-size: 0.9rem;">Pesanan ini telah dibatalkan dan tidak akan diproses.</span>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 <?php endif; ?>
@@ -135,7 +254,10 @@ foreach ($status_list as $status) {
         <div class="card-body">
             <div class="empty-state" style="padding: 2rem;">
                 <div class="empty-state-icon">📦</div>
-                <div class="empty-state-text">Anda belum memiliki pesanan</div>
+                <div class="empty-state-text">Tidak ada pesanan yang sedang berlangsung</div>
+                <div class="empty-state-subtext" style="font-size: 0.9rem; color: #999; margin-bottom: 1rem;">
+                    Semua pesanan Anda yang sudah dikonfirmasi diterima dapat dilihat di halaman <strong>Pesanan Selesai</strong>
+                </div>
                 <div class="empty-state-action">
                     <a href="dashboard.php" class="btn btn-primary">
                         🛒 Mulai Pesan
@@ -168,18 +290,86 @@ foreach ($status_list as $status) {
                             <td style="text-align: right; font-weight: 600;">
                                 <?php echo formatCurrency($p['total_harga']); ?>
                             </td>
-                            <td style="text-align: center;">
+                            <td style="text-align: center; display: flex; gap: 0.25rem; justify-content: center;">
                                 <a href="pesanan.php?pesanan_id=<?php echo $p['id']; ?>" class="btn btn-info btn-sm">
                                     👁️ Lihat
                                 </a>
+                                <?php if (in_array($p['status'], ['menunggu', 'dibayar'])): ?>
+                                    <form method="POST" style="display: inline;" onsubmit="return confirm('Batalkan pesanan ini?');";>
+                                        <?php csrf_field(); ?>
+                                        <input type="hidden" name="pesanan_id" value="<?php echo $p['id']; ?>">
+                                        <button type="submit" name="cancel_pesanan" class="btn btn-danger btn-sm" title="Batalkan pesanan">
+                                            ✕
+                                        </button>
+                                    </form>
+                                <?php endif; ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
         </div>
+        
+        <?php if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])): ?>
+            <div class="card-footer" style="text-align: center;">
+                <a href="keranjang.php" class="btn btn-primary btn-lg">
+                    🛒 Lihat Keranjang (<?php echo count($_SESSION['cart']); ?> item)
+                </a>
+            </div>
+        <?php endif; ?>
     <?php endif; ?>
 </div>
+
+<script src="/D-WarungS/assets/js/realtime-notifications.js?v=<?php echo time(); ?>"></script>
+<script>
+    // Inisialisasi realtime notifications untuk pembeli
+    document.addEventListener('DOMContentLoaded', function() {
+        // Request permission untuk browser notifications
+        RealtimeNotifications.requestNotificationPermission();
+        
+        // Flag untuk mencegah multiple reload
+        let isReloading = false;
+
+        // Buat instance realtime
+        const realtime = new RealtimeNotifications({
+            endpoint: '/D-WarungS/api/realtime-notifications.php',
+            reconnectInterval: 3000,
+            onNotification: function(notif) {
+                console.log('📩 Notifikasi realtime:', notif);
+                
+                // Untuk pembeli, refresh halaman ketika status berubah
+                if (!isReloading && notif.status && ['dibayar', 'diproses', 'siap', 'selesai', 'batal'].includes(notif.status)) {
+                    console.log('Status pesanan #' + notif.pesanan_id + ' berubah ke: ' + notif.status);
+                    isReloading = true;
+                    
+                    // Fix Spam Refresh: Tandai notifikasi sebagai sudah dibaca DULU sebelum reload
+                    // agar setelah reload API tidak mengirim notifikasi yang sama lagi
+                    fetch('pesanan.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: 'mark_read=1&notification_id=' + notif.id
+                    }).then(() => {
+                        // Force reload from server, ignoring cache
+                        window.location.reload(true);
+                    }).catch(() => {
+                        window.location.reload(true);
+                    });
+                }
+            },
+            onError: function(error) {
+                console.error('❌ Realtime error:', error);
+            }
+        });
+        
+        // Connect ke realtime notifications
+        realtime.connect();
+        
+        // Cleanup saat keluar halaman
+        window.addEventListener('beforeunload', function() {
+            realtime.disconnect();
+        });
+    });
+</script>
 
 </main>
 <?php require_once '../includes/footer.php'; ?>

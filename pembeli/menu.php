@@ -176,8 +176,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_favorit'])) {
         <?php foreach ($menu as $m): ?>
             <div class="card">
                 <div class="product-image" style="background: #f8f9fa; padding: 1rem; height: 200px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
-                    <?php if (!empty($m['foto']) && file_exists('../assets/uploads/menu/' . $m['foto'])): ?>
-                        <img src="../assets/uploads/menu/<?php echo esc($m['foto']); ?>" 
+                    <?php if (!empty($m['gambar']) && file_exists('../assets/uploads/menu/' . $m['gambar'])): ?>
+                        <img src="../assets/uploads/menu/<?php echo esc($m['gambar']); ?>" 
                              alt="<?php echo esc($m['nama_menu']); ?>"
                              style="max-width: 100%; max-height: 100%; object-fit: cover; border-radius: 5px;">
                     <?php else: ?>

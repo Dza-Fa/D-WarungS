@@ -76,6 +76,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_menu'])) {
                 } else {
                     $error = $upload_result['error'];
                 }
+            } elseif (isset($_POST['hapus_foto'])) {
+                // Handle delete photo
+                if (!empty($menu['gambar']) && file_exists('../assets/uploads/menu/' . $menu['gambar'])) {
+                    unlink('../assets/uploads/menu/' . $menu['gambar']);
+                }
+                $foto = null;
+                $message = 'Foto menu berhasil dihapus!';
             }
             
             if (!$error) {
@@ -152,6 +159,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_menu'])) {
                 <img src="../assets/uploads/menu/<?php echo esc($menu['gambar']); ?>" 
                      alt="<?php echo esc($menu['nama_menu']); ?>"
                      style="max-width: 200px; max-height: 200px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            
+                <div style="margin-top: 0.5rem;">
+                    <label style="display: inline-flex; align-items: center; cursor: pointer; color: #dc3545; font-size: 0.9rem;">
+                        <input type="checkbox" name="hapus_foto" value="1" style="margin-right: 0.5rem;">
+                        🗑️ Hapus foto ini
+                    </label>
+                </div>
             </div>
             <p style="margin: 0.5rem 0; font-size: 0.85rem; color: #999;">Unggah foto baru untuk mengganti</p>
             <?php else: ?>

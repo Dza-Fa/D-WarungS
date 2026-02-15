@@ -71,6 +71,8 @@ function executeQuery($query, $params = [], $types = '')
                     $types .= 'd';
                 } elseif (is_string($param)) {
                     $types .= 's';
+                } elseif (is_bool($param)) {
+                    $types .= 'i'; // MySQL uses tinyint(1) for boolean
                 } else {
                     $types .= 's';
                 }

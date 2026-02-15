@@ -379,6 +379,9 @@ $stats = [
             if (notif.type === 'order_update') {
                 title = '🔔 Update Pesanan';
                 bgColor = 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)'; // Blue for updates
+            } else if (notif.type === 'order_cancel') {
+                title = '❌ Pesanan Dibatalkan';
+                bgColor = 'linear-gradient(135deg, #ff6b6b 0%, #ee5253 100%)'; // Red for cancel
             }
             
             notification.style.cssText = `

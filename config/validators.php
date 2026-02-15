@@ -5,6 +5,38 @@
  */
 
 /**
+ * Validate email format
+ * @param string $email
+ * @return bool
+ */
+function isValidEmail($email) {
+    return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+}
+
+/**
+ * Check if email exists
+ * @param string $email
+ * @param int $excludeUserId
+ * @return bool
+ */
+function emailExists($email, $excludeUserId = 0) {
+    $user = getRow("SELECT id FROM users WHERE email = ? AND id != ?", [$email, $excludeUserId]);
+    return $user !== null;
+}
+
+/**
+ * Validate password strength
+ * @param string $password
+ * @return array
+ */
+function validatePassword($password) {
+    if (strlen($password) < 6) {
+        return ['valid' => false, 'message' => 'Password minimal 6 karakter!'];
+    }
+    return ['valid' => true];
+}
+
+/**
  * Validate profile update input
  * @param string $nama
  * @param string $email

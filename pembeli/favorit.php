@@ -40,14 +40,14 @@ $query = "
     WHERE f.pembeli_id = ?
     ORDER BY $sort_clause
 ";
-$favorit_menu = getRows($query, [getUserId()]);
+$favorit_menu = getRows($query, [$_SESSION['user_id']]);
 
 // Handle add to cart from favorit
 $message = '';
-if (isPost() && hasPost('add_to_cart')) {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_to_cart'])) {
     if (validate_csrf_token($_POST['csrf_token'] ?? '')) {
-    $menu_id = intval(getPost('menu_id'));
-    $qty = intval(getPost('qty') ?? 1);
+        $menu_id = intval($_POST['menu_id']);
+        $qty = intval($_POST['qty'] ?? 1);
     
     // Get menu data
     $menu_data = getRow("SELECT * FROM menu WHERE id = ?", [$menu_id]);
@@ -73,18 +73,16 @@ if (isPost() && hasPost('add_to_cart')) {
         }
         
         $message = 'Item ditambahkan ke keranjang!';
-        logActivity(getUserId(), 'add_to_cart', 'Added menu "' . $menu_data['nama_menu'] . '" to cart from favorites');
     }
     }
 }
 
 // Handle remove from favorit
-if (isPost() && hasPost('remove_favorit')) {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_favorit'])) {
     if (validate_csrf_token($_POST['csrf_token'] ?? '')) {
-    $menu_id = intval(getPost('menu_id'));
-    $query = "DELETE FROM favorites WHERE pembeli_id = ? AND menu_id = ?";
-    if (execute($query, [getUserId(), $menu_id])) {
-        logActivity(getUserId(), 'remove_favorite', 'Removed menu from favorites');
+        $menu_id = intval($_POST['menu_id']);
+        $query = "DELETE FROM favorites WHERE pembeli_id = ? AND menu_id = ?";
+        if (execute($query, [$_SESSION['user_id'], $menu_id])) {
         header('Location: favorit.php?removed=1');
         exit();
     }

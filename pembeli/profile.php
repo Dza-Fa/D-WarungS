@@ -7,24 +7,30 @@
 session_start();
 
 require_once '../config/db.php';
+require_once '../config/security.php';
+require_once '../config/validators.php';
 
 // Auth check dengan helper function
-requireRole('pembeli');
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'pembeli') {
+    header('Location: /D-WarungS/auth/login.php');
+    exit();
+}
 
 $page_title = 'Profile';
-$userId = getUserId();
+$userId = $_SESSION['user_id'];
 $user = getRow("SELECT * FROM users WHERE id = ?", [$userId]);
 $message = '';
 $error = '';
 
 // Handle profile update
-if (isPost() && hasPost('update_profile')) {
-    if (!verifyCSRFToken()) {
-        die('Invalid CSRF token');
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_profile'])) {
+    if (!validate_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = 'Token keamanan tidak valid.';
     }
     
-    $nama = getPost('nama');
-    $email = getPost('email');
+    else {
+        $nama = $_POST['nama'] ?? '';
+        $email = $_POST['email'] ?? '';
     
     // Validate dengan centralized validator
     $validation = validateProfileUpdate($nama, $email, $userId);
@@ -33,28 +39,29 @@ if (isPost() && hasPost('update_profile')) {
         // Update user
         $query = "UPDATE users SET nama = ?, email = ? WHERE id = ?";
         if (executeUpdate($query, [$validation['data']['nama'], $validation['data']['email'], $userId])) {
-            updateSessionUser('nama', $validation['data']['nama']);
+            $_SESSION['nama'] = $validation['data']['nama'];
             $user['nama'] = $validation['data']['nama'];
             $user['email'] = $validation['data']['email'];
             $message = 'Profile berhasil diperbarui!';
-            logActivity($userId, 'update_profile', 'Nama: ' . $validation['data']['nama']);
         } else {
             $error = 'Gagal memperbarui profile!';
         }
     } else {
         $error = $validation['errors'][0];
     }
+    }
 }
 
 // Handle password change
-if (isPost() && hasPost('change_password')) {
-    if (!verifyCSRFToken()) {
-        die('Invalid CSRF token');
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
+    if (!validate_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = 'Token keamanan tidak valid.';
     }
     
-    $current_password = getPost('current_password', '', false);
-    $new_password = getPost('new_password', '', false);
-    $confirm_password = getPost('confirm_password', '', false);
+    else {
+        $current_password = $_POST['current_password'] ?? '';
+        $new_password = $_POST['new_password'] ?? '';
+        $confirm_password = $_POST['confirm_password'] ?? '';
     
     // Validate password change
     $validation = validatePasswordChange(
@@ -72,23 +79,17 @@ if (isPost() && hasPost('change_password')) {
         $query = "UPDATE users SET password = ? WHERE id = ?";
         if (executeUpdate($query, [$hashed_password, $userId])) {
             $message = 'Password berhasil diubah!';
-            logActivity($userId, 'change_password', 'Password changed');
         } else {
             $error = 'Gagal mengubah password!';
         }
     } else {
         $error = $validation['errors'][0];
     }
+    }
 }
 
 // Get statistics dengan helper function
 $stats = getUserStatistics($userId, 'pembeli');
-
-// Session message jika ada
-$sessionMessage = getSessionMessage();
-if ($sessionMessage) {
-    $message = $sessionMessage['text'];
-}
 ?>
 <?php require_once '../includes/header.php'; ?>
 <?php require_once '../includes/sidebar.php'; ?>
@@ -97,12 +98,16 @@ if ($sessionMessage) {
     <h1 class="page-title">👤 Profile Saya</h1>
 </div>
 
-<?php if (isset($message)): ?>
-    <?php showAlert($message, 'success'); ?>
+<?php if ($message): ?>
+    <div class="alert alert-success">
+        ✓ <?php echo esc($message); ?>
+    </div>
 <?php endif; ?>
 
-<?php if (isset($error)): ?>
-    <?php showAlert($error, 'error'); ?>
+<?php if ($error): ?>
+    <div class="alert alert-danger">
+        ✗ <?php echo esc($error); ?>
+    </div>
 <?php endif; ?>
 
 <!-- Statistics -->
@@ -142,7 +147,7 @@ if ($sessionMessage) {
     </div>
     
     <form method="POST" class="card-body">
-        <?php echo csrfTokenInput(); ?>
+        <?php csrf_field(); ?>
         <div class="form-row">
             <div class="form-group">
                 <label for="nama">Nama Lengkap</label>
@@ -170,7 +175,7 @@ if ($sessionMessage) {
     </div>
     
     <form method="POST" class="card-body">
-        <?php echo csrfTokenInput(); ?>
+        <?php csrf_field(); ?>
         <div class="form-group">
             <label for="current_password">Password Saat Ini</label>
             <input type="password" id="current_password" name="current_password" required>

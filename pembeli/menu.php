@@ -67,6 +67,7 @@ $favorite_ids = array_column($favorite_ids_rows, 'menu_id');
 
 // Handle add to cart
 $message = '';
+$error = '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_to_cart'])) {
     if (!validate_csrf_token($_POST['csrf_token'] ?? '')) {
         // Silent fail or redirect
@@ -102,9 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_to_cart'])) {
             }
             $message = 'Item ditambahkan ke keranjang!';
         } else {
-            // Tampilkan pesan error jika stok tidak cukup (bisa dihandle UI lebih baik, tapi ini basic protection)
-            // Karena struktur kode saat ini menggunakan $message untuk sukses, kita bisa set message warning atau biarkan diam
-            // Untuk sekarang kita skip penambahan
+            $error = 'Stok tidak mencukupi! Sisa stok: ' . $menu_data['stok'];
         }
     }
     }
@@ -143,6 +142,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_favorit'])) {
 <?php if ($message): ?>
     <div class="alert alert-success">
         ✓ <?php echo esc($message); ?>
+    </div>
+<?php endif; ?>
+
+<?php if ($error): ?>
+    <div class="alert alert-danger">
+        ✗ <?php echo esc($error); ?>
     </div>
 <?php endif; ?>
 

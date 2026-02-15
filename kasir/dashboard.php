@@ -255,7 +255,7 @@ $semua_total = getRow("SELECT SUM(total_harga) as total FROM orders WHERE status
                 console.log('📩 Pesanan baru masuk:', notif);
                 
                 // Untuk kasir, refresh halaman saat ada pesanan baru
-                if (notif.type === 'order' || (notif.pesanan_id && notif.status === 'menunggu')) {
+                if (notif.type === 'order' || notif.type === 'order_cancel' || (notif.pesanan_id && notif.status === 'menunggu')) {
                     // Tampilkan notifikasi visual
                     showNewOrderNotif(notif);
                     
@@ -307,11 +307,20 @@ $semua_total = getRow("SELECT SUM(total_harga) as total FROM orders WHERE status
         
         function showNewOrderNotif(notif) {
             const notifEl = document.createElement('div');
+            
+            let title = '🎉 Pesanan Baru!';
+            let bgColor = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            
+            if (notif.type === 'order_cancel') {
+                title = '❌ Pesanan Dibatalkan';
+                bgColor = 'linear-gradient(135deg, #ff6b6b 0%, #ee5253 100%)';
+            }
+            
             notifEl.style.cssText = `
                 position: fixed;
                 top: 20px;
                 left: 20px;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                background: ${bgColor};
                 color: white;
                 padding: 20px;
                 border-radius: 8px;
@@ -323,7 +332,7 @@ $semua_total = getRow("SELECT SUM(total_harga) as total FROM orders WHERE status
             `;
             
             notifEl.innerHTML = `
-                <div style="font-weight: 600; font-size: 16px; margin-bottom: 8px;">🎉 Pesanan Baru!</div>
+                <div style="font-weight: 600; font-size: 16px; margin-bottom: 8px;">${title}</div>
                 <div style="font-size: 14px; opacity: 0.9;">ID Pesanan: #${notif.pesanan_id}</div>
                 <div style="font-size: 13px; opacity: 0.85; margin-top: 4px;">Total: Rp ${(notif.total_harga || 0).toLocaleString('id-ID')}</div>
                 <div style="font-size: 12px; opacity: 0.8; margin-top: 8px; cursor: pointer; text-decoration: underline;">Data diperbarui otomatis</div>

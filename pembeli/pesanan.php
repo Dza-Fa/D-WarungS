@@ -71,8 +71,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['cancel_pesanan'])) {
                 execute("UPDATE menu SET stok = stok + ? WHERE id = ?", [$item['qty'], $item['menu_id']]);
             }
             
-            // Log activity
-            logActivity($_SESSION['user_id'], 'cancel_order', 'Cancelled order #' . $pesanan_id);
+            // Kirim notifikasi ke semua kasir bahwa pesanan dibatalkan
+            $kasirs = getRows("SELECT id FROM users WHERE role = 'kasir'");
+            foreach ($kasirs as $k) {
+                execute("INSERT INTO notifications (user_id, order_id, type, message, role, is_read) VALUES (?, ?, 'order_cancel', 'Pesanan dibatalkan oleh pembeli', 'kasir', 0)", [$k['id'], $pesanan_id]);
+            }
+
+            // Kirim notifikasi ke pedagang jika status sebelumnya 'dibayar' (karena sudah muncul di dashboard mereka)
+            if ($pesanan['status'] == 'dibayar') {
+                $sellers = getRows("SELECT DISTINCT w.pemilik_id FROM order_items oi JOIN menu m ON oi.menu_id = m.id JOIN warung w ON m.warung_id = w.id WHERE oi.order_id = ?", [$pesanan_id]);
+
+                foreach ($sellers as $seller) {
+                    execute("INSERT INTO notifications (user_id, order_id, type, message, role, is_read) VALUES (?, ?, 'order_cancel', 'Pesanan dibatalkan oleh pembeli', 'pedagang', 0)", 
+                        [$seller['pemilik_id'], $pesanan_id]);
+                }
+            }
+            
             header('Location: pesanan.php?pesanan_id=' . $pesanan_id . '&cancelled=1');
             exit();
         }

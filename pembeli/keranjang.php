@@ -38,22 +38,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['checkout'])) {
             $conn = getDBConnection();
             $conn->begin_transaction();
 
-            // Calculate total
-            $total = 0;
+            // Group items by warung_id
+            $cart_by_warung = [];
             foreach ($_SESSION['cart'] as $item) {
-                $total += ($item['harga'] * $item['qty']);
+                $wid = $item['warung_id'];
+                if (!isset($cart_by_warung[$wid])) {
+                    $cart_by_warung[$wid] = [];
+                }
+                $cart_by_warung[$wid][] = $item;
             }
             
-            // Insert order dengan prepared statement
-            $query = "INSERT INTO orders (pembeli_id, status, total_harga, waktu_pesan) VALUES (?, 'menunggu', ?, NOW())";
-            $stmt = executeQuery($query, [$_SESSION['user_id'], $total]);
-            $order_id = getLastInsertId();
-            
-            if (!$order_id) {
-                $error = 'Gagal membuat pesanan. Silakan coba lagi.';
-            } else {
-                // Insert order items
-                foreach ($_SESSION['cart'] as $item) {
+            $orders_created = 0;
+
+            // Process order per warung
+            foreach ($cart_by_warung as $wid => $items) {
+                // Calculate total per warung
+                $total_warung = 0;
+                foreach ($items as $item) {
+                    $total_warung += ($item['harga'] * $item['qty']);
+                }
+
+                // Insert order header
+                $query = "INSERT INTO orders (pembeli_id, status, total_harga, waktu_pesan) VALUES (?, 'menunggu', ?, NOW())";
+                $stmt = executeQuery($query, [$_SESSION['user_id'], $total_warung]);
+                $order_id = getLastInsertId();
+
+                if (!$order_id) {
+                    throw new Exception("Gagal membuat pesanan.");
+                }
+
+                // Insert items
+                foreach ($items as $item) {
                     $subtotal = $item['harga'] * $item['qty'];
                     $query = "INSERT INTO order_items (order_id, menu_id, qty, harga_satuan, subtotal) VALUES (?, ?, ?, ?, ?)";
                     executeQuery($query, [$order_id, $item['menu_id'], $item['qty'], $item['harga'], $subtotal]);
@@ -61,31 +76,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['checkout'])) {
                     // Kurangi Stok
                     executeQuery("UPDATE menu SET stok = stok - ? WHERE id = ?", [$item['qty'], $item['menu_id']]);
                 }
-                
-                // Send notification to related penjual (owners of menu items)
-                $warung_ids = [];
-                foreach ($_SESSION['cart'] as $item) {
-                    // Get warung_id from menu
-                    $menu = getRow("SELECT warung_id FROM menu WHERE id = ?", [$item['menu_id']]);
-                    if ($menu && !in_array($menu['warung_id'], $warung_ids)) {
-                        $warung_ids[] = $menu['warung_id'];
-                        
-                        // Get penjual from warung
-                        $warung = getRow("SELECT pemilik_id FROM warung WHERE id = ?", [$menu['warung_id']]);
-                        if ($warung) {
-                            // Insert notification for penjual
-                            $notif_query = "INSERT INTO notifications (user_id, order_id, type, message, role, is_read) VALUES (?, ?, 'order', 'Pesanan baru dari pembeli', 'pedagang', 0)";
-                            execute($notif_query, [$warung['pemilik_id'], $order_id]);
-                        }
-                    }
-                }
-                
-                // Send notification to ALL kasirs (Fix: Agar semua kasir dapat notifikasi)
+
+                // Send notification to ALL kasirs per order
                 $kasirs = getRows("SELECT id FROM users WHERE role = 'kasir'");
                 foreach ($kasirs as $k) {
                     execute("INSERT INTO notifications (user_id, order_id, type, message, role, is_read) VALUES (?, ?, 'order', 'Pesanan baru masuk', 'kasir', 0)", [$k['id'], $order_id]);
                 }
-                
+                $orders_created++;
+            }
+
+            if ($orders_created > 0) {
                 // Commit Transaction
                 $conn->commit();
                 
@@ -94,8 +94,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['checkout'])) {
                 
                 $success = 'Pesanan berhasil dibuat! Silakan menunggu konfirmasi.';
                 
-                // Redirect to pesanan detail setelah 2 detik
-                header('Refresh: 2; url=pesanan.php?pesanan_id=' . $order_id);
+                // Redirect to pesanan list (karena bisa jadi ada banyak order)
+                header('Refresh: 2; url=pesanan.php');
             }
         } catch (Exception $e) {
             // Rollback jika ada error

@@ -50,6 +50,9 @@ if (isset($_GET['get_updates'])) {
 
     // 2. Get Orders
     $pesanan = getWarungOrders($warung['id'], null, 0);
+    $pesanan = array_filter($pesanan, function($p) {
+        return $p['status'] !== 'batal';
+    });
 
     // 3. Generate HTML
     ob_start();
@@ -146,6 +149,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_status'])) {
 // Hanya tampilkan pesanan yang BELUM dikonfirmasi pembeli (is_confirmed = 0)
 // Parameter ke-3 (0) menandakan is_confirmed = 0
 $pesanan = getWarungOrders($warung['id'], null, 0);
+$pesanan = array_filter($pesanan, function($p) {
+    return $p['status'] !== 'batal';
+});
 ?>
 <?php require_once '../includes/header.php'; ?>
 <?php require_once '../includes/sidebar.php'; ?>

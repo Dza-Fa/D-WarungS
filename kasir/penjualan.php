@@ -54,12 +54,12 @@ $transaksi = getTransactionsForReport($start_date, $end_date);
 <!-- Filter Period -->
 <div class="card" style="margin-bottom: 2rem;">
     <form method="GET" class="card-body" style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
-        <div class="form-group" style="margin: 0;">
-            <label for="start_date">Tanggal Awal</label>
+        <div class="form-group" style="margin: 0; flex: 1;">
+            <label for="start_date" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #4a5568;">Tanggal Awal</label>
             <input type="date" id="start_date" name="start_date" value="<?php echo $start_date; ?>">
         </div>
-        <div class="form-group" style="margin: 0;">
-            <label for="end_date">Tanggal Akhir</label>
+        <div class="form-group" style="margin: 0; flex: 1;">
+            <label for="end_date" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #4a5568;">Tanggal Akhir</label>
             <input type="date" id="end_date" name="end_date" value="<?php echo $end_date; ?>">
         </div>
         <button type="submit" class="btn btn-primary">
@@ -69,7 +69,7 @@ $transaksi = getTransactionsForReport($start_date, $end_date);
 </div>
 
 <!-- Summary Statistics -->
-<div class="grid grid-4" style="margin-bottom: 2rem;">
+<div class="grid grid-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
     <div class="card">
         <div style="text-align: center; padding: 1rem;">
             <div style="font-size: 2rem; font-weight: 700; color: #27ae60;">

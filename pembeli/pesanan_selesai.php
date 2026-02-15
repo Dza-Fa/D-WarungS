@@ -68,40 +68,40 @@ $stats['batal'] = getRow("SELECT COUNT(*) as count FROM orders WHERE pembeli_id 
 </div>
 
 <!-- Statistics Section -->
-<div class="grid grid-3" style="margin-bottom: 2rem;">
-    <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+<div class="grid grid-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+    <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
         <div style="text-align: center; padding: 1.5rem;">
             <div style="font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem;">
                 <?php echo $stats['total_pesanan']; ?>
             </div>
-            <div style="font-size: 0.95rem; opacity: 0.95;">Total Pesanan Selesai</div>
+            <div style="font-size: 0.9rem; opacity: 0.9;">Total Pesanan Selesai</div>
         </div>
     </div>
     
-    <div class="card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+    <div class="card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border: none;">
         <div style="text-align: center; padding: 1.5rem;">
-            <div style="font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem;">
+            <div style="font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem; white-space: nowrap;">
                 <?php echo formatCurrency($stats['total_pengeluaran']); ?>
             </div>
-            <div style="font-size: 0.95rem; opacity: 0.95;">Total Pengeluaran</div>
+            <div style="font-size: 0.9rem; opacity: 0.9;">Total Pengeluaran</div>
         </div>
     </div>
     
-    <div class="card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+    <div class="card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border: none;">
         <div style="text-align: center; padding: 1.5rem;">
             <div style="font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem;">
                 <?php echo $stats['dibayar'] + $stats['diproses'] + $stats['siap']; ?>
             </div>
-            <div style="font-size: 0.95rem; opacity: 0.95;">Pesanan Selesai</div>
+            <div style="font-size: 0.9rem; opacity: 0.9;">Pesanan Selesai</div>
         </div>
     </div>
     
-    <div class="card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white;">
+    <div class="card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; border: none;">
         <div style="text-align: center; padding: 1.5rem;">
             <div style="font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem;">
                 <?php echo $stats['batal']; ?>
             </div>
-            <div style="font-size: 0.95rem; opacity: 0.95;">Pesanan Dibatalkan</div>
+            <div style="font-size: 0.9rem; opacity: 0.9;">Pesanan Dibatalkan</div>
         </div>
     </div>
 </div>

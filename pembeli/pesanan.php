@@ -107,7 +107,7 @@ $pesanan = getRows($query, [$_SESSION['user_id']]);
 
 // Get status stats HANYA untuk pesanan yang belum dikonfirmasi
 $status_stats = [];
-$status_list = ['menunggu', 'dibayar', 'diproses', 'siap', 'batal'];
+$status_list = ['menunggu', 'dibayar', 'diproses', 'siap'];
 foreach ($status_list as $status) {
     $count = getRow("SELECT COUNT(*) as count FROM orders WHERE pembeli_id = ? AND status = ? AND is_confirmed = 0", [$_SESSION['user_id'], $status])['count'];
     if ($count > 0) {
@@ -124,13 +124,13 @@ foreach ($status_list as $status) {
 </div>
 
 <?php if (isset($_GET['confirmed']) && $_GET['confirmed'] == '1'): ?>
-    <div class="alert alert-success">
+    <div class="alert alert-success" style="background-color: #c6f6d5; color: #22543d; padding: 1rem; margin-bottom: 1.5rem;">
         ✓ Pesanan berhasil dikonfirmasi! Data akan diperbarui dalam sistem.
     </div>
 <?php endif; ?>
 
 <?php if (isset($_GET['cancelled']) && $_GET['cancelled'] == '1'): ?>
-    <div class="alert alert-warning">
+    <div class="alert alert-warning" style="background-color: #feebc8; color: #744210; padding: 1rem; margin-bottom: 1.5rem;">
         ✓ Pesanan berhasil dibatalkan. Pesanan ini tidak akan diproses lebih lanjut.
     </div>
 <?php endif; ?>
@@ -242,14 +242,14 @@ foreach ($status_list as $status) {
 
 <!-- Status Stats -->
 <?php if (!empty($status_stats)): ?>
-    <div class="grid grid-4" style="margin-bottom: 2rem;">
+    <div class="grid grid-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
         <?php foreach ($status_stats as $status => $count): ?>
             <div class="card">
                 <div style="text-align: center; padding: 1rem;">
-                    <div style="font-size: 2rem; font-weight: 700; color: #667eea;">
+                    <div style="font-size: 2.5rem; font-weight: 700; color: #667eea; line-height: 1;">
                         <?php echo $count; ?>
                     </div>
-                    <div style="color: #666; margin-top: 0.5rem; text-transform: capitalize;">
+                    <div style="color: #718096; margin-top: 0.5rem; text-transform: capitalize; font-weight: 500;">
                         <?php echo $status; ?>
                     </div>
                 </div>
@@ -284,9 +284,9 @@ foreach ($status_list as $status) {
             <table class="table">
                 <thead>
                     <tr>
-                        <th>No. Pesanan</th>
-                        <th>Waktu</th>
-                        <th>Status</th>
+                        <th style="width: 15%;">No. Pesanan</th>
+                        <th style="width: 25%;">Waktu</th>
+                        <th style="width: 20%;">Status</th>
                         <th style="text-align: right;">Total</th>
                         <th style="text-align: center;">Aksi</th>
                     </tr>
@@ -294,10 +294,10 @@ foreach ($status_list as $status) {
                 <tbody>
                     <?php foreach ($pesanan as $p): ?>
                         <tr>
-                            <td><strong>#<?php echo $p['id']; ?></strong></td>
-                            <td><?php echo formatDateTime($p['waktu_pesan']); ?></td>
+                            <td><span style="font-family: monospace; font-weight: 700; color: #4a5568;">#<?php echo $p['id']; ?></span></td>
+                            <td style="color: #718096;"><?php echo formatDateTime($p['waktu_pesan']); ?></td>
                             <td>
-                                <span class="status status-<?php echo $p['status']; ?>">
+                                <span class="status status-<?php echo $p['status']; ?>" style="padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.85rem; font-weight: 600; text-transform: capitalize; background: #edf2f7; color: #4a5568;">
                                     <?php echo ucfirst($p['status']); ?>
                                 </span>
                             </td>

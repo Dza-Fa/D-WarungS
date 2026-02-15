@@ -112,13 +112,13 @@ if (!empty($pesanan_list)) {
 </div>
 
 <?php if ($error): ?>
-    <div class="alert alert-danger">
+    <div class="alert alert-danger" style="background-color: #fed7d7; color: #822727; padding: 1rem; margin-bottom: 1.5rem;">
         ✗ <?php echo esc($error); ?>
     </div>
 <?php endif; ?>
 
 <?php if ($message): ?>
-    <div class="alert alert-success">
+    <div class="alert alert-success" style="background-color: #c6f6d5; color: #22543d; padding: 1rem; margin-bottom: 1.5rem;">
         ✓ <?php echo esc($message); ?>
     </div>
 <?php endif; ?>
@@ -163,7 +163,7 @@ if (!empty($pesanan_list)) {
                     $existing_rating = $ratings_by_item[$pesanan['id'] . '_' . $item['menu_id']] ?? null;
                     ?>
                     
-                    <div style="padding: 1rem; border: 1px solid #eee; border-radius: 5px; margin-bottom: 1rem;">
+                    <div style="padding: 1.25rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; margin-bottom: 1rem; background: #f8fafc;">
                         <div style="display: flex; gap: 1rem;">
                             <!-- Item Image -->
                             <div style="width: 80px; height: 80px; flex-shrink: 0; background: #f8f9fa; border-radius: 5px; overflow: hidden;">
@@ -178,8 +178,8 @@ if (!empty($pesanan_list)) {
                             
                             <!-- Item Info -->
                             <div style="flex: 1;">
-                                <h5 style="margin: 0 0 0.5rem 0;"><?php echo esc($item['nama_menu']); ?></h5>
-                                <p style="margin: 0; color: #666; font-size: 0.9rem;">
+                                <h5 style="margin: 0 0 0.25rem 0; font-size: 1.1rem; color: #2d3748;"><?php echo esc($item['nama_menu']); ?></h5>
+                                <p style="margin: 0; color: #718096; font-size: 0.9rem;">
                                     Qty: <?php echo $item['qty']; ?> • 
                                     Harga: <?php echo formatCurrency($item['harga_satuan']); ?>
                                 </p>

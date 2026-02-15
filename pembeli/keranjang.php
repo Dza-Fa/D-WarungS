@@ -125,13 +125,13 @@ if ($cart) {
 </div>
 
 <?php if ($error): ?>
-    <div class="alert alert-danger">
+    <div class="alert alert-danger" style="background-color: #fed7d7; color: #822727; padding: 1rem; margin-bottom: 1.5rem;">
         ✗ <?php echo esc($error); ?>
     </div>
 <?php endif; ?>
 
 <?php if ($success): ?>
-    <div class="alert alert-success">
+    <div class="alert alert-success" style="background-color: #c6f6d5; color: #22543d; padding: 1rem; margin-bottom: 1.5rem;">
         ✓ <?php echo esc($success); ?>
     </div>
 <?php endif; ?>
@@ -167,10 +167,10 @@ if ($cart) {
                     <tbody>
                         <?php foreach ($cart as $item_id => $item): ?>
                             <tr>
-                                <td><?php echo esc($item['nama_menu']); ?></td>
-                                <td style="text-align: right;"><?php echo formatCurrency($item['harga']); ?></td>
+                                <td style="font-weight: 500;"><?php echo esc($item['nama_menu']); ?></td>
+                                <td style="text-align: right; color: #718096;"><?php echo formatCurrency($item['harga']); ?></td>
                                 <td style="text-align: center;"><?php echo $item['qty']; ?></td>
-                                <td style="text-align: right;">
+                                <td style="text-align: right; font-weight: 600; color: #2d3748;">
                                     <?php echo formatCurrency($item['harga'] * $item['qty']); ?>
                                 </td>
                                 <td style="text-align: center;">
@@ -190,7 +190,7 @@ if ($cart) {
         </div>
         
         <div class="card-footer">
-            <div style="flex: 1; text-align: right; font-weight: 600;">
+            <div style="flex: 1; text-align: right; font-weight: 600; font-size: 1.1rem;">
                 Total Pesanan: <span style="font-size: 1.3rem; color: #667eea;">
                     <?php echo formatCurrency($total); ?>
                 </span>
@@ -199,7 +199,7 @@ if ($cart) {
     </div>
     
     <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: flex-end;">
-        <a href="dashboard.php" class="btn btn-secondary">
+        <a href="dashboard.php" class="btn btn-outline-secondary" style="border: 1px solid #cbd5e0;">
             ← Lanjut Belanja
         </a>
         <form method="POST" style="display: inline;">

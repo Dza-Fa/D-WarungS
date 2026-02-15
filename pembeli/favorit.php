@@ -101,13 +101,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_favorit'])) {
 </div>
 
 <?php if (isset($_GET['removed']) && $_GET['removed'] == '1'): ?>
-    <div class="alert alert-success">
+    <div class="alert alert-success" style="background-color: #c6f6d5; color: #22543d; padding: 1rem; margin-bottom: 1.5rem;">
         ✓ Menu dihapus dari favorit
     </div>
 <?php endif; ?>
 
 <?php if ($message): ?>
-    <div class="alert alert-success">
+    <div class="alert alert-success" style="background-color: #c6f6d5; color: #22543d; padding: 1rem; margin-bottom: 1.5rem;">
         ✓ <?php echo esc($message); ?>
     </div>
 <?php endif; ?>
@@ -148,14 +148,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_favorit'])) {
     </div>
     
     <!-- Menu Grid -->
-    <div class="grid grid-4">
+    <div class="grid grid-4" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem;">
         <?php foreach ($favorit_menu as $menu): ?>
-            <div class="card">
-                <div class="product-image" style="background: #f8f9fa; padding: 1rem; height: 200px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative;">
+            <div class="card" style="transition: transform 0.2s; height: 100%; display: flex; flex-direction: column;">
+                <div class="product-image" style="background: #f8f9fa; height: 180px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative;">
                     <?php if (!empty($menu['gambar']) && file_exists('../assets/uploads/menu/' . $menu['gambar'])): ?>
                         <img src="../assets/uploads/menu/<?php echo esc($menu['gambar']); ?>" 
                              alt="<?php echo esc($menu['nama_menu']); ?>"
-                             style="max-width: 100%; max-height: 100%; object-fit: cover; border-radius: 5px;">
+                             style="width: 100%; height: 100%; object-fit: cover;">
                     <?php else: ?>
                         <div style="font-size: 3rem; opacity: 0.5;">🍜</div>
                     <?php endif; ?>
@@ -166,19 +166,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['remove_favorit'])) {
                     </div>
                 </div>
                 
-                <div class="product-info">
+                <div class="product-info" style="padding: 1.25rem; flex: 1; display: flex; flex-direction: column;">
                     <div style="margin-bottom: 0.5rem;">
-                        <small style="color: #999; font-size: 0.8rem;">
+                        <small style="color: #718096; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">
                             <?php echo esc($menu['nama_warung']); ?>
                         </small>
                     </div>
                     
-                    <h3 class="product-name"><?php echo esc($menu['nama_menu']); ?></h3>
-                    <p class="product-description">
-                        <?php echo esc(substr($menu['deskripsi'] ?? '', 0, 60)); ?>
+                    <h3 class="product-name" style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: #2d3748;"><?php echo esc($menu['nama_menu']); ?></h3>
+                    <p class="product-description" style="color: #718096; font-size: 0.9rem; line-height: 1.5; margin-bottom: 1rem; flex: 1;">
+                        <?php echo esc(substr($menu['deskripsi'] ?? '', 0, 80)); ?>
                     </p>
                     
-                    <div class="product-price">
+                    <div class="product-price" style="font-size: 1.1rem; font-weight: 700; color: #667eea; margin-bottom: 1rem;">
                         <?php echo formatCurrency($menu['harga']); ?>
                     </div>
                     

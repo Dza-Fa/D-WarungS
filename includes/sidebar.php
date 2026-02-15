@@ -3,6 +3,12 @@
  * Sidebar Include
  */
 ?>
+<style>
+.nav-item { display: flex; align-items: center; padding: 0.75rem 1rem; color: #4a5568; text-decoration: none; border-radius: 0.5rem; margin-bottom: 0.25rem; transition: all 0.2s; }
+.nav-item:hover { background-color: #edf2f7; color: #2d3748; }
+.nav-item.active { background-color: #667eea; color: white; box-shadow: 0 4px 6px -1px rgba(102, 126, 234, 0.4); }
+.nav-item i { width: 1.5rem; text-align: center; margin-right: 0.75rem; }
+</style>
 <aside class="app-sidebar">
     <nav class="sidebar-nav">
         <?php

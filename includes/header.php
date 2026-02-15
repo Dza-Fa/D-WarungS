@@ -17,6 +17,31 @@ if (!isset($_SESSION['user_id'])) {
     <title><?php echo isset($page_title) ? esc($page_title) . ' - D-Warung' : 'D-Warung'; ?></title>
     <link rel="stylesheet" href="/D-WarungS/assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7fafc; color: #2d3748; }
+        .page-header { margin-bottom: 2rem; }
+        .page-title { font-size: 1.75rem; font-weight: 700; color: #1a202c; margin-bottom: 0.5rem; }
+        .page-subtitle { color: #718096; font-size: 1rem; }
+        .card { border: none; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); background: white; margin-bottom: 1.5rem; overflow: hidden; }
+        .card-header { background: white; border-bottom: 1px solid #edf2f7; padding: 1.25rem 1.5rem; }
+        .card-header h3 { font-size: 1.1rem; font-weight: 600; margin: 0; color: #2d3748; }
+        .card-body { padding: 1.5rem; }
+        .card-footer { background: #f7fafc; border-top: 1px solid #edf2f7; padding: 1rem 1.5rem; }
+        .btn { border-radius: 0.5rem; font-weight: 500; padding: 0.5rem 1rem; transition: all 0.2s; }
+        .btn-primary { background-color: #667eea; border-color: #667eea; }
+        .btn-primary:hover { background-color: #5a67d8; border-color: #5a67d8; transform: translateY(-1px); }
+        .form-control, input[type="text"], input[type="email"], input[type="password"], input[type="number"], input[type="date"], textarea {
+            width: 100%; padding: 0.625rem 1rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; outline: none; transition: border-color 0.2s;
+        }
+        .form-control:focus, input:focus, textarea:focus { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+        .table th { background-color: #f7fafc; color: #4a5568; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; padding: 0.75rem 1rem; border-bottom: 1px solid #edf2f7; }
+        .table td { padding: 1rem; border-bottom: 1px solid #edf2f7; vertical-align: middle; }
+        .alert { border-radius: 0.5rem; border: none; }
+        .empty-state { text-align: center; padding: 3rem 1rem; }
+        .empty-state-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.8; }
+        .grid { gap: 1.5rem; }
+    </style>
 </head>
 <body>
     <div class="app-container">

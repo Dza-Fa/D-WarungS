@@ -236,7 +236,7 @@ $top_rated = getRows(
 <?php if ($total_ratings > 0): ?>
 <div class="card" style="margin-bottom: 2rem; background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: white;">
     <div class="card-header">
-        <h3 style="color: white; margin: 0;">⭐ Rating & Review dari Pembeli</h3>
+        <h3 style="color: #666; margin: 0;">⭐ Rating & Review dari Pembeli</h3>
     </div>
     
     <div class="card-body">

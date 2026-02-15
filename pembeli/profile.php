@@ -90,6 +90,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['change_password'])) {
 
 // Get statistics dengan helper function
 $stats = getUserStatistics($userId, 'pembeli');
+
+// Fix: Ensure pesanan_aktif excludes cancelled orders explicitly
+$stats['pesanan_aktif'] = getRow("SELECT COUNT(*) as count FROM orders WHERE pembeli_id = ? AND is_confirmed = 0 AND status != 'batal'", [$userId])['count'];
 ?>
 <?php require_once '../includes/header.php'; ?>
 <?php require_once '../includes/sidebar.php'; ?>
@@ -99,19 +102,19 @@ $stats = getUserStatistics($userId, 'pembeli');
 </div>
 
 <?php if ($message): ?>
-    <div class="alert alert-success">
+    <div class="alert alert-success" style="background-color: #c6f6d5; color: #22543d; padding: 1rem; margin-bottom: 1.5rem;">
         ✓ <?php echo esc($message); ?>
     </div>
 <?php endif; ?>
 
 <?php if ($error): ?>
-    <div class="alert alert-danger">
+    <div class="alert alert-danger" style="background-color: #fed7d7; color: #822727; padding: 1rem; margin-bottom: 1.5rem;">
         ✗ <?php echo esc($error); ?>
     </div>
 <?php endif; ?>
 
 <!-- Statistics -->
-<div class="grid grid-4" style="margin-bottom: 2rem;">
+<div class="grid grid-3" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
     <div class="card">
         <div style="text-align: center; padding: 1rem;">
             <div style="font-size: 2rem; font-weight: 700; color: #667eea;">
@@ -148,14 +151,14 @@ $stats = getUserStatistics($userId, 'pembeli');
     
     <form method="POST" class="card-body">
         <?php csrf_field(); ?>
-        <div class="form-row">
+        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1rem;">
             <div class="form-group">
-                <label for="nama">Nama Lengkap</label>
+                <label for="nama" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #4a5568;">Nama Lengkap</label>
                 <input type="text" id="nama" name="nama" value="<?php echo esc($user['nama']); ?>" required>
             </div>
             
             <div class="form-group">
-                <label for="email">Email</label>
+                <label for="email" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #4a5568;">Email</label>
                 <input type="email" id="email" name="email" value="<?php echo esc($user['email']); ?>" required>
             </div>
         </div>
@@ -176,19 +179,19 @@ $stats = getUserStatistics($userId, 'pembeli');
     
     <form method="POST" class="card-body">
         <?php csrf_field(); ?>
-        <div class="form-group">
-            <label for="current_password">Password Saat Ini</label>
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="current_password" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #4a5568;">Password Saat Ini</label>
             <input type="password" id="current_password" name="current_password" required>
         </div>
         
-        <div class="form-row">
+        <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
             <div class="form-group">
-                <label for="new_password">Password Baru</label>
+                <label for="new_password" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #4a5568;">Password Baru</label>
                 <input type="password" id="new_password" name="new_password" required>
             </div>
             
             <div class="form-group">
-                <label for="confirm_password">Konfirmasi Password</label>
+                <label for="confirm_password" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #4a5568;">Konfirmasi Password</label>
                 <input type="password" id="confirm_password" name="confirm_password" required>
             </div>
         </div>

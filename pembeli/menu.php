@@ -131,39 +131,50 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_favorit'])) {
 <?php require_once '../includes/header.php'; ?>
 <?php require_once '../includes/sidebar.php'; ?>
 
+<style>
+.menu-card { transition: transform 0.2s, box-shadow 0.2s; height: 100%; display: flex; flex-direction: column; }
+.menu-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important; }
+</style>
+
 <div class="page-header">
-    <a href="dashboard.php" style="color: #667eea; text-decoration: none; margin-bottom: 1rem; display: inline-block;">
-        ← Kembali ke Warung
+    <a href="dashboard.php" class="btn btn-outline-secondary btn-sm" style="margin-bottom: 1rem; display: inline-flex; align-items: center; gap: 0.5rem; border: 1px solid #e2e8f0;">
+        <i class="fas fa-arrow-left"></i> Kembali ke Warung
     </a>
     <h1 class="page-title"><?php echo esc($warung['nama_warung']); ?></h1>
     <p class="page-subtitle"><?php echo esc($warung['deskripsi']); ?></p>
 </div>
 
 <?php if ($message): ?>
-    <div class="alert alert-success">
+    <div class="alert alert-success" style="background-color: #c6f6d5; color: #22543d; padding: 1rem; margin-bottom: 1.5rem;">
         ✓ <?php echo esc($message); ?>
     </div>
 <?php endif; ?>
 
 <?php if ($error): ?>
-    <div class="alert alert-danger">
+    <div class="alert alert-danger" style="background-color: #fed7d7; color: #822727; padding: 1rem; margin-bottom: 1.5rem;">
         ✗ <?php echo esc($error); ?>
     </div>
 <?php endif; ?>
 
 <!-- Search & Filter Bar -->
-<form method="GET" class="search-bar" style="display: flex; gap: 0.5rem; margin-bottom: 1rem; align-items: center;">
-    <input type="hidden" name="warung_id" value="<?php echo $warung_id; ?>">
-    <input type="text" name="search" placeholder="Cari menu..." value="<?php echo esc($search); ?>" style="flex: 1;">
-    <button type="submit" style="white-space: nowrap;">🔍 Cari</button>
-    
-    <!-- Favorit Filter Toggle -->
-    <a href="menu.php?warung_id=<?php echo $warung_id; ?>&favorit=<?php echo $show_favorit ? 'all' : 'only'; ?><?php echo $search ? '&search=' . urlencode($search) : ''; ?>" 
-       class="btn <?php echo $show_favorit ? 'btn-warning' : 'btn-outline-secondary'; ?>" 
-       style="white-space: nowrap;">
-        ❤️ <?php echo $show_favorit ? 'Semua Menu' : 'Hanya Favorit'; ?>
-    </a>
-</form>
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-body" style="padding: 1.25rem;">
+        <form method="GET" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+            <input type="hidden" name="warung_id" value="<?php echo $warung_id; ?>">
+            <div style="flex: 1; min-width: 200px;">
+                <input type="text" name="search" placeholder="Cari menu makanan/minuman..." value="<?php echo esc($search); ?>" style="width: 100%;">
+            </div>
+            <button type="submit" class="btn btn-primary">🔍 Cari Menu</button>
+            
+            <!-- Favorit Filter Toggle -->
+            <a href="menu.php?warung_id=<?php echo $warung_id; ?>&favorit=<?php echo $show_favorit ? 'all' : 'only'; ?><?php echo $search ? '&search=' . urlencode($search) : ''; ?>" 
+               class="btn <?php echo $show_favorit ? 'btn-warning' : 'btn-outline-secondary'; ?>" 
+               style="white-space: nowrap; border: 1px solid #e2e8f0;">
+                ❤️ <?php echo $show_favorit ? 'Tampilkan Semua' : 'Hanya Favorit'; ?>
+            </a>
+        </form>
+    </div>
+</div>
 
 <?php if (empty($menu)): ?>
     <div class="empty-state">
@@ -177,33 +188,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_favorit'])) {
         </div>
     </div>
 <?php else: ?>
-    <div class="grid grid-4">
+    <div class="grid grid-4" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem;">
         <?php foreach ($menu as $m): ?>
-            <div class="card">
-                <div class="product-image" style="background: #f8f9fa; padding: 1rem; height: 200px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+            <div class="card menu-card">
+                <div class="product-image" style="background: #f8f9fa; height: 180px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative;">
                     <?php if (!empty($m['gambar']) && file_exists('../assets/uploads/menu/' . $m['gambar'])): ?>
                         <img src="../assets/uploads/menu/<?php echo esc($m['gambar']); ?>" 
                              alt="<?php echo esc($m['nama_menu']); ?>"
-                             style="max-width: 100%; max-height: 100%; object-fit: cover; border-radius: 5px;">
+                             style="width: 100%; height: 100%; object-fit: cover;">
                     <?php else: ?>
                         <div style="font-size: 3rem; opacity: 0.5;">🍜</div>
                     <?php endif; ?>
                 </div>
-                <div class="product-info">
-                    <h3 class="product-name"><?php echo esc($m['nama_menu']); ?></h3>
-                    <p class="product-description">
-                        <?php echo esc(substr($m['deskripsi'] ?? '', 0, 60)); ?>
+                <div class="product-info" style="padding: 1.25rem; flex: 1; display: flex; flex-direction: column;">
+                    <h3 class="product-name" style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: #2d3748;"><?php echo esc($m['nama_menu']); ?></h3>
+                    <p class="product-description" style="color: #718096; font-size: 0.9rem; line-height: 1.5; margin-bottom: 1rem; flex: 1;">
+                        <?php echo esc(substr($m['deskripsi'] ?? '', 0, 80)); ?>
                     </p>
                     
-                    <div class="product-price">
+                    <div class="product-price" style="font-size: 1.1rem; font-weight: 700; color: #667eea; margin-bottom: 0.5rem;">
                         <?php echo formatCurrency($m['harga']); ?>
                     </div>
                     
-                    <div class="product-stock <?php echo $m['stok'] == 0 ? 'out' : ''; ?>">
+                    <div class="product-stock <?php echo $m['stok'] == 0 ? 'out' : ''; ?>" style="font-size: 0.85rem; color: #718096; margin-bottom: 1rem;">
                         <?php if ($m['stok'] > 0): ?>
-                            Stok: <?php echo $m['stok']; ?>
+                            Tersedia: <strong><?php echo $m['stok']; ?></strong> porsi
                         <?php else: ?>
-                            ❌ Stok Habis
+                            <span style="color: #e53e3e;">❌ Stok Habis</span>
                         <?php endif; ?>
                     </div>
                     
@@ -213,7 +224,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_favorit'])) {
                                 <?php csrf_field(); ?>
                                 <input type="hidden" name="menu_id" value="<?php echo $m['id']; ?>">
                                 <input type="hidden" name="add_to_cart" value="1">
-                                <input type="number" name="qty" value="1" min="1" max="<?php echo $m['stok']; ?>" style="width: 60px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 5px;">
+                                <input type="number" name="qty" value="1" min="1" max="<?php echo $m['stok']; ?>" style="width: 60px; text-align: center;">
                                 <button type="submit" class="btn btn-primary" style="flex: 1;">
                                     🛒 Pesan
                                 </button>

@@ -132,8 +132,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_favorit'])) {
 <?php require_once '../includes/sidebar.php'; ?>
 
 <style>
-.menu-card { transition: transform 0.2s, box-shadow 0.2s; height: 100%; display: flex; flex-direction: column; }
-.menu-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important; }
+.product-card { transition: transform 0.2s, box-shadow 0.2s; }
+.product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important; }
 </style>
 
 <div class="page-header">
@@ -190,7 +190,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['save_favorit'])) {
 <?php else: ?>
     <div class="grid grid-4" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem;">
         <?php foreach ($menu as $m): ?>
-            <div class="card menu-card">
+            <div class="card product-card" style="height: 100%; display: flex; flex-direction: column;">
                 <div class="product-image" style="background: #f8f9fa; height: 180px; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative;">
                     <?php if (!empty($m['gambar']) && file_exists('../assets/uploads/menu/' . $m['gambar'])): ?>
                         <img src="../assets/uploads/menu/<?php echo esc($m['gambar']); ?>" 

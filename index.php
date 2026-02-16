@@ -40,25 +40,22 @@ $total_menu = getRow("SELECT COUNT(*) as count FROM menu WHERE status_aktif = 1"
             align-items: center;
             justify-content: center;
             padding: 2rem;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
         .hero-container {
             max-width: 1000px;
             text-align: center;
         }
-        
         .hero-title {
             font-size: 3.5rem;
             margin-bottom: 1rem;
             font-weight: 700;
         }
-        
         .hero-subtitle {
             font-size: 1.3rem;
             margin-bottom: 2rem;
             opacity: 0.95;
         }
-        
         .hero-buttons {
             display: flex;
             gap: 1rem;
@@ -66,39 +63,33 @@ $total_menu = getRow("SELECT COUNT(*) as count FROM menu WHERE status_aktif = 1"
             flex-wrap: wrap;
             margin-bottom: 3rem;
         }
-        
         .btn-hero {
             padding: 1rem 2rem;
             border: 2px solid white;
-            border-radius: 5px;
+            border-radius: 50px;
             text-decoration: none;
             font-size: 1.1rem;
             font-weight: 600;
             transition: all 0.3s;
             display: inline-block;
         }
-        
         .btn-hero-primary {
             background: white;
             color: #667eea;
         }
-        
         .btn-hero-primary:hover {
             transform: translateY(-3px);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
         }
-        
         .btn-hero-secondary {
             background: transparent;
             color: white;
         }
-        
         .btn-hero-secondary:hover {
             background: rgba(255, 255, 255, 0.1);
             transform: translateY(-3px);
         }
-        
-        .stats {
+        .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 2rem;
@@ -106,45 +97,26 @@ $total_menu = getRow("SELECT COUNT(*) as count FROM menu WHERE status_aktif = 1"
             padding-top: 3rem;
             border-top: 2px solid rgba(255, 255, 255, 0.2);
         }
-        
         .stat-item {
             background: rgba(255, 255, 255, 0.1);
             padding: 2rem;
-            border-radius: 8px;
+            border-radius: 15px;
             backdrop-filter: blur(10px);
         }
-        
         .stat-number {
             font-size: 2.5rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
         }
-        
         .stat-label {
             font-size: 1rem;
             opacity: 0.9;
         }
-        
         @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2rem;
-            }
-            
-            .hero-subtitle {
-                font-size: 1rem;
-            }
-            
-            .hero-buttons {
-                flex-direction: column;
-            }
-            
-            .btn-hero {
-                width: 100%;
-            }
-            
-            .stats {
-                grid-template-columns: 1fr;
-            }
+            .hero-title { font-size: 2rem; }
+            .hero-subtitle { font-size: 1rem; }
+            .hero-buttons { flex-direction: column; }
+            .btn-hero { width: 100%; }
         }
     </style>
 </head>
@@ -157,9 +129,12 @@ $total_menu = getRow("SELECT COUNT(*) as count FROM menu WHERE status_aktif = 1"
             <a href="/D-WarungS/auth/login.php" class="btn-hero btn-hero-primary">
                 🔓 Login
             </a>
+            <a href="/D-WarungS/auth/register.php" class="btn-hero btn-hero-secondary">
+                📝 Daftar
+            </a>
         </div>
         
-        <div class="stats">
+        <div class="stats-grid">
             <div class="stat-item">
                 <div class="stat-number"><?php echo $total_warung; ?></div>
                 <div class="stat-label">Warung Aktif</div>

@@ -24,9 +24,10 @@ if (!$warung) {
 
 // Get pesanan yang sudah dikonfirmasi (diterima pembeli)
 $query = "
-    SELECT DISTINCT o.* FROM orders o
+    SELECT DISTINCT o.*, u.nama as nama_pembeli FROM orders o
     JOIN order_items oi ON o.id = oi.order_id
     JOIN menu m ON oi.menu_id = m.id
+    JOIN users u ON o.pembeli_id = u.id
     WHERE m.warung_id = ? AND o.is_confirmed = 1
     ORDER BY o.waktu_pesan DESC
 ";
@@ -44,6 +45,40 @@ $stats = [
         [$warung['id']]
     )['count'] ?? 0,
 ];
+
+// OPTIMASI: Pre-fetch items dan ratings untuk menghindari N+1 Query dalam loop
+$items_by_order = [];
+$ratings_by_order = [];
+
+if (!empty($pesanan)) {
+    $order_ids = array_column($pesanan, 'id');
+    $placeholders = implode(',', array_fill(0, count($order_ids), '?'));
+    
+    // Ambil semua item sekaligus
+    // Filter item agar hanya menampilkan menu dari warung ini saja (jika sistem multi-warung per order)
+    $all_items = getRows(
+        "SELECT oi.order_id, m.nama_menu, oi.qty 
+         FROM order_items oi 
+         JOIN menu m ON oi.menu_id = m.id 
+         WHERE oi.order_id IN ($placeholders) AND m.warung_id = ?",
+        array_merge($order_ids, [$warung['id']])
+    );
+    
+    foreach ($all_items as $item) {
+        $items_by_order[$item['order_id']][] = $item;
+    }
+
+    // Ambil rata-rata rating sekaligus
+    $all_ratings = getRows(
+        "SELECT order_id, AVG(rating) as avg_rating, COUNT(*) as count 
+         FROM ratings WHERE order_id IN ($placeholders) GROUP BY order_id",
+        $order_ids
+    );
+    
+    foreach ($all_ratings as $r) {
+        $ratings_by_order[$r['order_id']] = $r;
+    }
+}
 ?>
 <?php require_once '../includes/header.php'; ?>
 <?php require_once '../includes/sidebar.php'; ?>
@@ -112,14 +147,12 @@ $stats = [
                 <tbody>
                     <?php foreach ($pesanan as $p): ?>
                         <?php
-                        $pembeli = getRow("SELECT nama FROM users WHERE id = ?", [$p['pembeli_id']]);
-                        $pembeli_nama = $pembeli ? esc($pembeli['nama']) : 'Unknown';
-                        $items = getRows("SELECT m.nama_menu, oi.qty FROM order_items oi JOIN menu m ON oi.menu_id = m.id WHERE oi.order_id = ?", [$p['id']]);
+                        $pembeli_nama = esc($p['nama_pembeli']);
+                        $items = $items_by_order[$p['id']] ?? [];
                         
-                        // Get average rating for this order
-                        $rating = getRow("SELECT AVG(rating) as avg_rating, COUNT(*) as count FROM ratings WHERE order_id = ?", [$p['id']]);
-                        $avg_rating = $rating['avg_rating'] ? round($rating['avg_rating'], 1) : 0;
-                        $rating_count = $rating['count'] ?? 0;
+                        $rating_data = $ratings_by_order[$p['id']] ?? ['avg_rating' => 0, 'count' => 0];
+                        $avg_rating = $rating_data['avg_rating'] ? round($rating_data['avg_rating'], 1) : 0;
+                        $rating_count = $rating_data['count'];
                         ?>
                         <tr>
                             <td><strong>#<?php echo $p['id']; ?></strong></td>

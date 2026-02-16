@@ -22,8 +22,7 @@ if (isset($_SESSION['user_id'])) {
 
 // Get count data untuk statistik
 $total_warung = getRow("SELECT COUNT(*) as count FROM warung")['count'] ?? 0;
-$total_menu = getRow("SELECT COUNT(*) as count FROM menu")['count'] ?? 0;
-$total_orders = getRow("SELECT COUNT(*) as count FROM orders")['count'] ?? 0;
+$total_menu = getRow("SELECT COUNT(*) as count FROM menu WHERE status_aktif = 1")['count'] ?? 0;
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -168,10 +167,6 @@ $total_orders = getRow("SELECT COUNT(*) as count FROM orders")['count'] ?? 0;
             <div class="stat-item">
                 <div class="stat-number"><?php echo $total_menu; ?></div>
                 <div class="stat-label">Menu Tersedia</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number"><?php echo $total_orders; ?></div>
-                <div class="stat-label">Pesanan Diproses</div>
             </div>
         </div>
     </div>

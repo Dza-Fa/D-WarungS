@@ -63,14 +63,14 @@ if (isset($_GET['get_updates'])) {
     if (ob_get_length()) ob_clean();
     
     // 1. Recalculate Menu & Order Stats
-    $menu = getRows("SELECT * FROM menu WHERE warung_id = ?", [$warung['id']]);
+    $menu = getRows("SELECT * FROM menu WHERE warung_id = ? AND status_aktif = 1", [$warung['id']]);
     
     $total_menu = count($menu);
     $total_stok = 0;
     $total_terjual = 0;
     foreach ($menu as $m) {
         $total_stok += $m['stok'];
-        $terjual = getRow("SELECT SUM(qty) as total FROM order_items WHERE menu_id = ?", [$m['id']])['total'] ?? 0;
+        $terjual = getRow("SELECT SUM(oi.qty) as total FROM order_items oi JOIN orders o ON oi.order_id = o.id WHERE oi.menu_id = ? AND o.status != 'menunggu' AND o.status != 'batal'", [$m['id']])['total'] ?? 0;
         $total_terjual += $terjual;
     }
 
@@ -88,10 +88,10 @@ if (isset($_GET['get_updates'])) {
     $avg_rating = $rating_stats['avg_rating'] ? round($rating_stats['avg_rating'], 1) : 0;
     
     // 3. Generate Menu Table HTML
-    $menu_list = getRows("SELECT * FROM menu WHERE warung_id = ? ORDER BY nama_menu ASC", [$warung['id']]);
+    $menu_list = getRows("SELECT * FROM menu WHERE warung_id = ? AND status_aktif = 1 ORDER BY nama_menu ASC", [$warung['id']]);
     ob_start();
     foreach ($menu_list as $m) {
-        $terjual = getRow("SELECT SUM(qty) as total FROM order_items WHERE menu_id = ?", [$m['id']])['total'] ?? 0;
+        $terjual = getRow("SELECT SUM(oi.qty) as total FROM order_items oi JOIN orders o ON oi.order_id = o.id WHERE oi.menu_id = ? AND o.status != 'menunggu' AND o.status != 'batal'", [$m['id']])['total'] ?? 0;
         echo '<tr>';
         echo '<td>
                 <strong>' . esc($m['nama_menu']) . '</strong><br>
@@ -128,7 +128,7 @@ if (isset($_GET['get_updates'])) {
 }
 
 // Get menu list
-$menu = getRows("SELECT * FROM menu WHERE warung_id = ? ORDER BY nama_menu ASC", [$warung['id']]);
+$menu = getRows("SELECT * FROM menu WHERE warung_id = ? AND status_aktif = 1 ORDER BY nama_menu ASC", [$warung['id']]);
 
 // Get statistics
 $total_menu = count($menu);
@@ -136,7 +136,7 @@ $total_stok = 0;
 $total_terjual = 0;
 foreach ($menu as $m) {
     $total_stok += $m['stok'];
-    $terjual = getRow("SELECT SUM(qty) as total FROM order_items WHERE menu_id = ?", [$m['id']])['total'] ?? 0;
+    $terjual = getRow("SELECT SUM(oi.qty) as total FROM order_items oi JOIN orders o ON oi.order_id = o.id WHERE oi.menu_id = ? AND o.status != 'menunggu' AND o.status != 'batal'", [$m['id']])['total'] ?? 0;
     $total_terjual += $terjual;
 }
 
@@ -166,7 +166,7 @@ $top_rated = getRows(
     "SELECT m.id, m.nama_menu, AVG(r.rating) as avg_rating, COUNT(r.id) as rating_count
     FROM menu m
     LEFT JOIN ratings r ON m.id = r.menu_id
-    WHERE m.warung_id = ?
+    WHERE m.warung_id = ? AND m.status_aktif = 1
     GROUP BY m.id, m.nama_menu
     ORDER BY avg_rating DESC, rating_count DESC
     LIMIT 3",
@@ -370,7 +370,7 @@ $top_rated = getRows(
                 <tbody id="menu-table-body">
                     <?php foreach ($menu as $m): ?>
                         <?php
-                        $terjual = getRow("SELECT SUM(qty) as total FROM order_items WHERE menu_id = ?", [$m['id']])['total'] ?? 0;
+                        $terjual = getRow("SELECT SUM(oi.qty) as total FROM order_items oi JOIN orders o ON oi.order_id = o.id WHERE oi.menu_id = ? AND o.status != 'menunggu' AND o.status != 'batal'", [$m['id']])['total'] ?? 0;
                         ?>
                         <tr>
                             <td>

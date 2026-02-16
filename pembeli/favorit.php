@@ -37,7 +37,7 @@ $query = "
     FROM favorites f
     JOIN menu m ON f.menu_id = m.id
     JOIN warung w ON m.warung_id = w.id
-    WHERE f.pembeli_id = ?
+    WHERE f.pembeli_id = ? AND m.status_aktif = 1
     ORDER BY $sort_clause
 ";
 $favorit_menu = getRows($query, [$_SESSION['user_id']]);

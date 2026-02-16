@@ -46,9 +46,23 @@ if (!$menu) {
     exit();
 }
 
-// Delete menu dengan prepared statement
-$query = "DELETE FROM menu WHERE id = ?";
-executeUpdate($query, [$menu_id]);
+// Cek apakah menu sudah pernah dipesan (ada di order_items)
+$is_ordered = getRow("SELECT id FROM order_items WHERE menu_id = ? LIMIT 1", [$menu_id]);
+
+if ($is_ordered) {
+    // Soft delete (set status_aktif = 0) karena data historis pesanan harus tetap ada
+    $query = "UPDATE menu SET status_aktif = 0 WHERE id = ?";
+    executeUpdate($query, [$menu_id]);
+} else {
+    // Hard delete (hapus permanen) karena belum ada transaksi
+    // Hapus file gambar jika ada
+    if (!empty($menu['gambar']) && file_exists('../assets/uploads/menu/' . $menu['gambar'])) {
+        unlink('../assets/uploads/menu/' . $menu['gambar']);
+    }
+    
+    $query = "DELETE FROM menu WHERE id = ?";
+    executeUpdate($query, [$menu_id]);
+}
 
 // Redirect ke dashboard
 header('Location: dashboard.php?success=Menu berhasil dihapus');

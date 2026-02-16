@@ -33,7 +33,7 @@ if (!$warung) {
 }
 
 // Get menu
-$menu = getRow("SELECT * FROM menu WHERE id = ? AND warung_id = ?", [$menu_id, $warung['id']]);
+$menu = getRow("SELECT * FROM menu WHERE id = ? AND warung_id = ? AND status_aktif = 1", [$menu_id, $warung['id']]);
 
 if (!$menu) {
     header('Location: dashboard.php');

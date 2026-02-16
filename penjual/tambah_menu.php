@@ -58,13 +58,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['tambah_menu'])) {
         }
         
         if (!$error) {
-            // Insert menu dengan prepared statement
-            $query = "INSERT INTO menu (warung_id, nama_menu, deskripsi, harga, stok, gambar) VALUES (?, ?, ?, ?, ?, ?)";
-            if (execute($query, [$warung['id'], $nama_menu, $deskripsi, $harga, $stok, $foto])) {
-                header('Location: dashboard.php?success=' . urlencode('Menu berhasil ditambahkan'));
-                exit();
+            // Cek apakah menu dengan nama yang sama sudah ada dan aktif
+            $existing_menu = getRow("SELECT id FROM menu WHERE warung_id = ? AND nama_menu = ? AND status_aktif = 1", [$warung['id'], $nama_menu]);
+
+            if ($existing_menu) {
+                $error = 'Menu dengan nama tersebut sudah ada dan aktif!';
             } else {
-                $error = 'Gagal menambahkan menu!';
+                // Insert menu baru (selalu buat baru agar history terjual reset)
+                $query = "INSERT INTO menu (warung_id, nama_menu, deskripsi, harga, stok, gambar) VALUES (?, ?, ?, ?, ?, ?)";
+                if (execute($query, [$warung['id'], $nama_menu, $deskripsi, $harga, $stok, $foto])) {
+                    header('Location: dashboard.php?success=' . urlencode('Menu berhasil ditambahkan'));
+                    exit();
+                } else {
+                    $error = 'Gagal menambahkan menu!';
+                }
             }
         }
     }

@@ -43,9 +43,9 @@ if (isset($_GET['get_updates'])) {
 
     // 1. Get Updated Stats
     $stats = [
-        'dibayar' => getRow("SELECT COUNT(DISTINCT o.id) as count FROM orders o JOIN order_items oi ON o.id = oi.order_id JOIN menu m ON oi.menu_id = m.id WHERE m.warung_id = ? AND o.status = 'dibayar'", [$warung['id']])['count'] ?? 0,
-        'diproses' => getRow("SELECT COUNT(DISTINCT o.id) as count FROM orders o JOIN order_items oi ON o.id = oi.order_id JOIN menu m ON oi.menu_id = m.id WHERE m.warung_id = ? AND o.status = 'diproses'", [$warung['id']])['count'] ?? 0,
-        'siap' => getRow("SELECT COUNT(DISTINCT o.id) as count FROM orders o JOIN order_items oi ON o.id = oi.order_id JOIN menu m ON oi.menu_id = m.id WHERE m.warung_id = ? AND o.status = 'siap'", [$warung['id']])['count'] ?? 0,
+        'dibayar' => getRow("SELECT COUNT(DISTINCT o.id) as count FROM orders o JOIN order_items oi ON o.id = oi.order_id JOIN menu m ON oi.menu_id = m.id WHERE m.warung_id = ? AND o.status = 'dibayar' AND o.is_confirmed = 0", [$warung['id']])['count'] ?? 0,
+        'diproses' => getRow("SELECT COUNT(DISTINCT o.id) as count FROM orders o JOIN order_items oi ON o.id = oi.order_id JOIN menu m ON oi.menu_id = m.id WHERE m.warung_id = ? AND o.status = 'diproses' AND o.is_confirmed = 0", [$warung['id']])['count'] ?? 0,
+        'siap' => getRow("SELECT COUNT(DISTINCT o.id) as count FROM orders o JOIN order_items oi ON o.id = oi.order_id JOIN menu m ON oi.menu_id = m.id WHERE m.warung_id = ? AND o.status = 'siap' AND o.is_confirmed = 0", [$warung['id']])['count'] ?? 0,
     ];
 
     // 2. Get Orders
@@ -180,21 +180,21 @@ $stats = [
         "SELECT COUNT(DISTINCT o.id) as count FROM orders o
         JOIN order_items oi ON o.id = oi.order_id
         JOIN menu m ON oi.menu_id = m.id
-        WHERE m.warung_id = ? AND o.status = ?",
+        WHERE m.warung_id = ? AND o.status = ? AND o.is_confirmed = 0",
         [$warung['id'], 'dibayar']
     )['count'] ?? 0,
     'diproses' => getRow(
         "SELECT COUNT(DISTINCT o.id) as count FROM orders o
         JOIN order_items oi ON o.id = oi.order_id
         JOIN menu m ON oi.menu_id = m.id
-        WHERE m.warung_id = ? AND o.status = ?",
+        WHERE m.warung_id = ? AND o.status = ? AND o.is_confirmed = 0",
         [$warung['id'], 'diproses']
     )['count'] ?? 0,
     'siap' => getRow(
         "SELECT COUNT(DISTINCT o.id) as count FROM orders o
         JOIN order_items oi ON o.id = oi.order_id
         JOIN menu m ON oi.menu_id = m.id
-        WHERE m.warung_id = ? AND o.status = ?",
+        WHERE m.warung_id = ? AND o.status = ? AND o.is_confirmed = 0",
         [$warung['id'], 'siap']
     )['count'] ?? 0,
 ];

@@ -48,7 +48,7 @@ if ($show_favorit) {
     $params[] = $_SESSION['user_id'];
 }
 
-$query .= " WHERE m.warung_id = ?";
+$query .= " WHERE m.warung_id = ? AND m.status_aktif = 1";
 $params[] = $warung_id;
 
 if ($search) {

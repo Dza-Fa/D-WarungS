@@ -41,6 +41,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             
             if ($user && password_verify($password, $user['password'])) {
                 // Set session
+                // FIX: Regenerate session ID untuk mencegah Session Fixation
+                session_regenerate_id(true);
+                
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['role'] = $user['role'];
                 $_SESSION['nama'] = $user['nama'];

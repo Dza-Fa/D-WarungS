@@ -249,5 +249,18 @@ $total_penjualan = getRow(
     </div>
 </div>
 
+<!-- Hapus acount -->
+<div class="card" style="margin-top: 2rem; border-top: 4px solid #e53e3e;">
+    <div class="card-header">
+        <h3 style="color: #e53e3e;">⚠️ Zona Bahaya</h3>
+    </div>
+    <div class="card-body">
+        <p style="color: #666; margin-bottom: 1rem;">Ingin menghapus akun Anda? Perhatian: Menghapus akun akan menghapus data warung dan menu Anda secara permanen.</p>
+        <a href="../auth/delete_account.php" class="btn btn-danger" style="background-color: #fff; color: #e53e3e; border: 1px solid #e53e3e;">
+            🗑️ Hapus Akun
+        </a>
+    </div>
+</div>
+
 </main>
 <?php require_once '../includes/footer.php'; ?>

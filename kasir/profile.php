@@ -197,5 +197,18 @@ $pembayaran_menunggu = getRow("SELECT COUNT(*) as count FROM orders WHERE status
     </form>
 </div>
 
+<!-- Hapus Acount -->
+<div class="card" style="margin-top: 2rem; border-top: 4px solid #e53e3e;">
+    <div class="card-header">
+        <h3 style="color: #e53e3e;">⚠️ Pengaturan Akun</h3>
+    </div>
+    <div class="card-body">
+        <p style="color: #666; margin-bottom: 1rem;">Hapus akun kasir Anda dari sistem secara permanen.</p>
+        <a href="../auth/delete_account.php" class="btn btn-danger" style="background-color: #fff; color: #e53e3e; border: 1px solid #e53e3e;">
+            🗑️ Hapus Akun
+        </a>
+    </div>
+</div>
+
 </main>
 <?php require_once '../includes/footer.php'; ?>

@@ -173,6 +173,33 @@ function getAffectedRows()
 }
 
 /**
+ * Start Database Transaction
+ */
+function startTransaction()
+{
+    $conn = getDBConnection();
+    $conn->begin_transaction();
+}
+
+/**
+ * Commit Database Transaction
+ */
+function commitTransaction()
+{
+    $conn = getDBConnection();
+    $conn->commit();
+}
+
+/**
+ * Rollback Database Transaction
+ */
+function rollbackTransaction()
+{
+    $conn = getDBConnection();
+    $conn->rollback();
+}
+
+/**
  * Escape output untuk HTML
  * @param string $string String to escape
  * @return string Escaped string

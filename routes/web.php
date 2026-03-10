@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
+// Public Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/vendors', [VendorController::class, 'index'])->name('vendors.index');
 Route::get('/vendors/{vendor}', [VendorController::class, 'show'])->name('vendors.show');
@@ -28,18 +29,21 @@ Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
 Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
 Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
 
-// Checkout Routes
+// Authenticated User Routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
     Route::get('/checkout/success/{orderNumber}', [CheckoutController::class, 'success'])->name('checkout.success');
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 // Vendor Routes
 Route::middleware(['auth', 'role:vendor'])->prefix('vendor')->name('vendor.')->group(function () {
-    Route::get('/dashboard', [VendorDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [VendorDashboardController::class, 'index'])->name('dashboard.index');
     Route::get('/orders', [VendorOrderController::class, 'index'])->name('orders.index');
     Route::put('/orders/{order}/status', [VendorOrderController::class, 'updateStatus'])->name('orders.updateStatus');
     Route::get('/products', [VendorProductController::class, 'index'])->name('products.index');
@@ -61,12 +65,4 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::put('/users/{user}/status', [AdminUserController::class, 'updateStatus'])->name('users.updateStatus');
 });
 
-// Profile Routes (from Breeze)
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
-
 require __DIR__.'/auth.php';
-

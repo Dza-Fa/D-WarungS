@@ -20,7 +20,7 @@ return new class extends Migration
             $table->integer('display_order')->default(0);
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();
-            
+
             $table->foreign('vendor_id')->references('id')->on('vendors')->onDelete('cascade');
             $table->index('vendor_id');
             $table->index('status');
@@ -35,4 +35,3 @@ return new class extends Migration
         Schema::dropIfExists('categories');
     }
 };
-

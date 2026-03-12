@@ -11,6 +11,7 @@ class CategoryController extends Controller
     public function index()
     {
         $categories = Category::where('vendor_id', auth()->user()->vendor->id)->get();
+
         return view('vendor.categories.index', compact('categories'));
     }
 
@@ -22,8 +23,7 @@ class CategoryController extends Controller
             'description' => $request->description,
             'status' => 'active',
         ]);
-        
+
         return redirect()->back()->with('success', 'Category created!');
     }
 }
-

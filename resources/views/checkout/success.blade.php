@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Order Success - D-WarungS')
+@section('title', 'Pesanan Berhasil - D-WarungS')
 
 @section('content')
 <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -11,16 +11,16 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
             </svg>
         </div>
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Order Placed Successfully!</h1>
-        <p class="text-gray-600">Thank you for your order. We've received your order and will process it shortly.</p>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Pesanan Berhasil!</h1>
+        <p class="text-gray-600">Terima kasih atas pesanan Anda. Kami telah menerima pesanan Anda dan akan segera memprosesnya.</p>
     </div>
 
     <!-- Order Details -->
     <div class="bg-white rounded-xl shadow-sm overflow-hidden">
         <div class="bg-gray-50 px-6 py-4 border-b">
             <div class="flex justify-between items-center">
-                <h2 class="text-lg font-semibold text-gray-900">Order Details</h2>
-                <span class="text-sm text-gray-500">Order #{{ $order->order_number }}</span>
+                <h2 class="text-lg font-semibold text-gray-900">Detail Pesanan</h2>
+                <span class="text-sm text-gray-500">Pesanan #{{ $order->order_number }}</span>
             </div>
         </div>
         
@@ -28,7 +28,7 @@
             <!-- Order Info -->
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <p class="text-sm text-gray-500">Order Date</p>
+                    <p class="text-sm text-gray-500">Tanggal Pesanan</p>
                     <p class="font-medium text-gray-900">{{ $order->created_at->format('d M Y, H:i') }}</p>
                 </div>
                 <div>
@@ -38,11 +38,11 @@
                     </span>
                 </div>
                 <div>
-                    <p class="text-sm text-gray-500">Payment Method</p>
+                    <p class="text-sm text-gray-500">Metode Pembayaran</p>
                     <p class="font-medium text-gray-900">{{ ucfirst($order->payment_method) }}</p>
                 </div>
                 <div>
-                    <p class="text-sm text-gray-500">Payment Status</p>
+                    <p class="text-sm text-gray-500">Status Pembayaran</p>
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                         {{ ucfirst($order->payment_status) }}
                     </span>
@@ -51,7 +51,7 @@
 
             <!-- Order Items -->
             <div class="border-t pt-6">
-                <h3 class="font-semibold text-gray-900 mb-4">Order Items</h3>
+                <h3 class="font-semibold text-gray-900 mb-4">Item Pesanan</h3>
                 <div class="space-y-3">
                     @foreach($order->orderItems as $item)
                         <div class="flex items-center gap-4">
@@ -65,7 +65,7 @@
                                 @endif
                             </div>
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium text-gray-900">{{ $item->product->name ?? 'Product #' . $item->product_id }}</p>
+                                <p class="text-sm font-medium text-gray-900">{{ $item->product->name ?? 'Produk #' . $item->product_id }}</p>
                                 <p class="text-xs text-gray-500">{{ $item->quantity }} x Rp {{ number_format($item->unit_price, 0, ',', '.') }}</p>
                             </div>
                             <div class="text-sm font-medium text-gray-900">
@@ -85,13 +85,13 @@
                     </div>
                     @if($order->tax_amount > 0)
                         <div class="flex justify-between text-gray-600">
-                            <span>Tax</span>
+                            <span>Pajak</span>
                             <span>Rp {{ number_format($order->tax_amount, 0, ',', '.') }}</span>
                         </div>
                     @endif
                     @if($order->discount_amount > 0)
                         <div class="flex justify-between text-gray-600">
-                            <span>Discount</span>
+                            <span>Diskon</span>
                             <span class="text-green-600">-Rp {{ number_format($order->discount_amount, 0, ',', '.') }}</span>
                         </div>
                     @endif
@@ -110,10 +110,10 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
-            View My Orders
+            Lihat Pesanan Saya
         </a>
         <a href="{{ route('home') }}" class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg font-semibold transition-colors">
-            Continue Shopping
+            Lanjut Belanja
         </a>
     </div>
 </div>

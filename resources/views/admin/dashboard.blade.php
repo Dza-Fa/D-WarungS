@@ -131,29 +131,6 @@
             </div>
         </a>
     </div>
-
-    <!-- Recent Activity Placeholder -->
-    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div class="bg-gray-50 px-6 py-4 border-b">
-            <h2 class="font-semibold text-gray-900">Platform Statistics</h2>
-        </div>
-        <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-                <div class="p-4">
-                    <p class="text-4xl font-bold text-orange-600">{{ $totalVendors }}</p>
-                    <p class="text-gray-500 mt-2">Active Vendors</p>
-                </div>
-                <div class="p-4">
-                    <p class="text-4xl font-bold text-purple-600">{{ $totalOrders }}</p>
-                    <p class="text-gray-500 mt-2">Total Orders</p>
-                </div>
-                <div class="p-4">
-                    <p class="text-4xl font-bold text-green-600">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</p>
-                    <p class="text-gray-500 mt-2">Total Revenue</p>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 @endsection
 

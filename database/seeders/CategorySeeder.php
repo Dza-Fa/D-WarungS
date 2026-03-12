@@ -17,11 +17,11 @@ class CategorySeeder extends Seeder
     public function run(): void
     {
         $vendor = Vendor::first();
-        
-        if (!$vendor) {
+
+        if (! $vendor) {
             return;
         }
-        
+
         // Category 1: Makanan Utama
         Category::firstOrCreate(
             ['vendor_id' => $vendor->id, 'name' => 'Makanan Utama'],
@@ -31,7 +31,7 @@ class CategorySeeder extends Seeder
                 'status' => 'active',
             ]
         );
-        
+
         // Category 2: Minuman
         Category::firstOrCreate(
             ['vendor_id' => $vendor->id, 'name' => 'Minuman'],
@@ -41,7 +41,7 @@ class CategorySeeder extends Seeder
                 'status' => 'active',
             ]
         );
-        
+
         // Category 3: Snack
         Category::firstOrCreate(
             ['vendor_id' => $vendor->id, 'name' => 'Snack'],
@@ -53,4 +53,3 @@ class CategorySeeder extends Seeder
         );
     }
 }
-

@@ -11,13 +11,14 @@ class UserController extends Controller
     public function index()
     {
         $users = User::all();
+
         return view('admin.users.index', compact('users'));
     }
 
     public function updateStatus(Request $request, User $user)
     {
         $user->update(['status' => $request->status]);
+
         return redirect()->back()->with('success', 'User status updated!');
     }
 }
-

@@ -1,17 +1,17 @@
 @extends('layouts.app')
 
-@section('title', 'Manage Vendors - D-WarungS')
+@section('title', 'Kelola Vendor - D-WarungS')
 
 @section('header')
-    <h2 class="text-xl font-semibold text-gray-800">Vendor Management</h2>
+    <h2 class="text-xl font-semibold text-gray-800">Kelola Vendor</h2>
 @endsection
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Page Header -->
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Vendors</h1>
-        <p class="mt-2 text-gray-600">Approve, reject, and manage vendors</p>
+        <h1 class="text-3xl font-bold text-gray-900">Vendor</h1>
+        <p class="mt-2 text-gray-600">Setuju, tolak, dan kelola vendor</p>
     </div>
 
     @if($vendors->isEmpty())
@@ -19,8 +19,8 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 text-gray-300 mx-auto mb-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
-            <h2 class="text-2xl font-semibold text-gray-700 mb-2">No vendors yet</h2>
-            <p class="text-gray-500">When vendors register, they will appear here.</p>
+            <h2 class="text-2xl font-semibold text-gray-700 mb-2">Belum ada vendor</h2>
+            <p class="text-gray-500">Ketika vendor mendaftar, mereka akan muncul di sini.</p>
         </div>
     @else
         <div class="bg-white rounded-xl shadow-sm overflow-hidden">
@@ -29,16 +29,16 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vendor</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Owner</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pemilik</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rating</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dibuat</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
                         @foreach($vendors as $vendor)
-                            <tr>
+                            <tr class="hover:bg-gray-50">
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
                                         @if($vendor->logo)
@@ -67,7 +67,12 @@
                                             @case('pending') bg-yellow-100 text-yellow-800 @break
                                             @case('suspended') bg-red-100 text-red-800 @break
                                             @default bg-gray-100 text-gray-800 @endswitch">
-                                        {{ ucfirst($vendor->status) }}
+                                        @switch($vendor->status)
+                                            @case('active') Aktif @break
+                                            @case('pending') Menunggu @break
+                                            @case('suspended') Ditangguhkan @break
+                                            @default {{ ucfirst($vendor->status) }}
+                                        @endswitch
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -79,7 +84,7 @@
                                             <span class="text-sm text-gray-600">{{ number_format($vendor->rating, 1) }}</span>
                                         </div>
                                     @else
-                                        <span class="text-sm text-gray-400">No ratings</span>
+                                        <span class="text-sm text-gray-400">Belum ada rating</span>
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -91,22 +96,22 @@
                                             @csrf
                                             @method('PUT')
                                             <button type="submit" class="text-green-600 hover:text-green-900 mr-3">
-                                                Approve
+                                                Setuju
                                             </button>
                                         </form>
                                         <form action="{{ route('admin.vendors.reject', $vendor) }}" method="POST" class="inline">
                                             @csrf
                                             @method('PUT')
                                             <button type="submit" class="text-red-600 hover:text-red-900">
-                                                Reject
+                                                Tolak
                                             </button>
                                         </form>
                                     @elseif($vendor->status === 'active')
                                         <form action="{{ route('admin.vendors.reject', $vendor) }}" method="POST" class="inline">
                                             @csrf
                                             @method('PUT')
-                                            <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure you want to suspend this vendor?')">
-                                                Suspend
+                                            <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Apakah Anda yakin ingin menangguhkan vendor ini?')">
+                                                Tangguhkan
                                             </button>
                                         </form>
                                     @elseif($vendor->status === 'suspended')
@@ -114,7 +119,7 @@
                                             @csrf
                                             @method('PUT')
                                             <button type="submit" class="text-green-600 hover:text-green-900">
-                                                Reactivate
+                                                Aktifkan Kembali
                                             </button>
                                         </form>
                                     @endif

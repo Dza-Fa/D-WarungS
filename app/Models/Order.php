@@ -11,6 +11,26 @@ class Order extends Model
 {
     use HasFactory;
 
+    // Status Constants
+    const STATUS_PENDING = 'pending';
+
+    const STATUS_CONFIRMED = 'confirmed';
+
+    const STATUS_PREPARING = 'preparing';
+
+    const STATUS_READY = 'ready';
+
+    const STATUS_COMPLETED = 'completed';
+
+    const STATUS_CANCELLED = 'cancelled';
+
+    // Payment Status Constants
+    const PAYMENT_PENDING = 'pending';
+
+    const PAYMENT_PAID = 'paid';
+
+    const PAYMENT_FAILED = 'failed';
+
     protected $fillable = [
         'user_id',
         'vendor_id',
@@ -55,5 +75,60 @@ class Order extends Model
     {
         return $this->hasMany(Review::class);
     }
-}
 
+    // Helper Methods
+    public function canBeConfirmedByCashier(): bool
+    {
+        return $this->payment_status === self::PAYMENT_PENDING &&
+               $this->status === self::STATUS_PENDING;
+    }
+
+    public function canBePreparedByVendor(): bool
+    {
+        return $this->payment_status === self::PAYMENT_PAID &&
+               $this->status === self::STATUS_CONFIRMED;
+    }
+
+    public function canStartPreparing(): bool
+    {
+        return $this->status === self::STATUS_CONFIRMED;
+    }
+
+    public function canMarkReady(): bool
+    {
+        return $this->status === self::STATUS_PREPARING;
+    }
+
+    public function canBePickedUpByCustomer(): bool
+    {
+        return $this->status === self::STATUS_READY;
+    }
+
+    public function isPaid(): bool
+    {
+        return $this->payment_status === self::PAYMENT_PAID;
+    }
+
+    public function getStatusBadgeClass(): string
+    {
+        return match ($this->status) {
+            self::STATUS_PENDING => 'bg-yellow-100 text-yellow-800',
+            self::STATUS_CONFIRMED => 'bg-blue-100 text-blue-800',
+            self::STATUS_PREPARING => 'bg-orange-100 text-orange-800',
+            self::STATUS_READY => 'bg-green-100 text-green-800',
+            self::STATUS_COMPLETED => 'bg-gray-100 text-gray-800',
+            self::STATUS_CANCELLED => 'bg-red-100 text-red-800',
+            default => 'bg-gray-100 text-gray-800',
+        };
+    }
+
+    public function getPaymentStatusBadgeClass(): string
+    {
+        return match ($this->payment_status) {
+            self::PAYMENT_PENDING => 'bg-yellow-100 text-yellow-800',
+            self::PAYMENT_PAID => 'bg-green-100 text-green-800',
+            self::PAYMENT_FAILED => 'bg-red-100 text-red-800',
+            default => 'bg-gray-100 text-gray-800',
+        };
+    }
+}

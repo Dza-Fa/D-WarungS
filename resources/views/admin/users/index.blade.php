@@ -1,17 +1,17 @@
 @extends('layouts.app')
 
-@section('title', 'Manage Users - D-WarungS')
+@section('title', 'Kelola Pengguna - D-WarungS')
 
 @section('header')
-    <h2 class="text-xl font-semibold text-gray-800">User Management</h2>
+    <h2 class="text-xl font-semibold text-gray-800">Kelola Pengguna</h2>
 @endsection
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Page Header -->
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Users</h1>
-        <p class="mt-2 text-gray-600">Manage platform users and their roles</p>
+        <h1 class="text-3xl font-bold text-gray-900">Pengguna</h1>
+        <p class="mt-2 text-gray-600">Kelola pengguna platform dan peran mereka</p>
     </div>
 
     @if($users->isEmpty())
@@ -19,8 +19,8 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 text-gray-300 mx-auto mb-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
-            <h2 class="text-2xl font-semibold text-gray-700 mb-2">No users yet</h2>
-            <p class="text-gray-500">Users will appear here when they register.</p>
+            <h2 class="text-2xl font-semibold text-gray-700 mb-2">Belum ada pengguna</h2>
+            <p class="text-gray-500">Pengguna akan muncul di sini ketika mereka mendaftar.</p>
         </div>
     @else
         <div class="bg-white rounded-xl shadow-sm overflow-hidden">
@@ -28,17 +28,17 @@
                 <table class="w-full">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pengguna</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Peran</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email Verified</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email Terverifikasi</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bergabung</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
                         @foreach($users as $user)
-                            <tr>
+                            <tr class="hover:bg-gray-50">
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
                                         @if($user->avatar)
@@ -61,14 +61,19 @@
                                             @case('vendor') bg-orange-100 text-orange-800 @break
                                             @case('user') bg-blue-100 text-blue-800 @break
                                             @default bg-gray-100 text-gray-800 @endswitch">
-                                        {{ ucfirst($user->role) }}
+                                        @switch($user->role)
+                                            @case('admin') Admin @break
+                                            @case('vendor') Vendor @break
+                                            @case('user') Pengguna @break
+                                            @default {{ ucfirst($user->role) }}
+                                        @endswitch
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                                         @if($user->status === 'active') bg-green-100 text-green-800
                                         @else bg-red-100 text-red-800 @endif">
-                                        {{ ucfirst($user->status) }}
+                                        @if($user->status === 'active') Aktif @else Tidak Aktif @endif
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -77,14 +82,14 @@
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                             </svg>
-                                            Verified
+                                            Terverifikasi
                                         </span>
                                     @else
                                         <span class="text-gray-400 flex items-center gap-1">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                             </svg>
-                                            Unverified
+                                            Belum Verifikasi
                                         </span>
                                     @endif
                                 </td>
@@ -98,18 +103,18 @@
                                             @method('PUT')
                                             @if($user->status === 'active')
                                                 <input type="hidden" name="status" value="inactive">
-                                                <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure you want to deactivate this user?')">
-                                                    Deactivate
+                                                <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Apakah Anda yakin ingin menonaktifkan pengguna ini?')">
+                                                    Nonaktifkan
                                                 </button>
                                             @else
                                                 <input type="hidden" name="status" value="active">
                                                 <button type="submit" class="text-green-600 hover:text-green-900">
-                                                    Activate
+                                                    Aktifkan
                                                 </button>
                                             @endif
                                         </form>
                                     @else
-                                        <span class="text-gray-400">You</span>
+                                        <span class="text-gray-400">Anda</span>
                                     @endif
                                 </td>
                             </tr>

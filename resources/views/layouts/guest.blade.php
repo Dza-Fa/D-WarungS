@@ -14,15 +14,18 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans text-gray-900 antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-            <div>
-                <a href="/">
-                    <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
+    <body class="font-sans text-gray-900 antialiased bg-gradient-to-br from-orange-50 to-orange-100">
+        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0">
+            <!-- Logo -->
+            <div class="flex items-center gap-3 mb-8">
+                <a href="/" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                    <div class="bg-orange-500 text-white p-3 rounded-lg font-bold text-2xl">D</div>
+                    <span class="text-2xl font-bold text-gray-900">D-WarungS</span>
                 </a>
             </div>
 
-            <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
+            <!-- Form Container -->
+            <div class="w-full sm:max-w-md px-6 py-8 bg-white shadow-lg rounded-lg border border-gray-100">
                 {{ $slot }}
             </div>
         </div>

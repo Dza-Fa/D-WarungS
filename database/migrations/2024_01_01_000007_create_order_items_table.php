@@ -20,7 +20,7 @@ return new class extends Migration
             $table->decimal('subtotal', 10, 2);
             $table->text('notes')->nullable();
             $table->timestamps();
-            
+
             $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
             $table->index('order_id');
@@ -36,4 +36,3 @@ return new class extends Migration
         Schema::dropIfExists('order_items');
     }
 };
-

@@ -45,18 +45,25 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $order->orderItems->count() }} items</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <form action="{{ route('vendor.orders.updateStatus', $order) }}" method="POST" class="inline">
-                                        @csrf
-                                        @method('PUT')
-                                        <select name="status" onchange="this.form.submit()" class="text-sm border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500">
-                                            <option value="pending" {{ $order->status === 'pending' ? 'selected' : '' }}>Pending</option>
-                                            <option value="confirmed" {{ $order->status === 'confirmed' ? 'selected' : '' }}>Confirmed</option>
-                                            <option value="processing" {{ $order->status === 'processing' ? 'selected' : '' }}>Processing</option>
-                                            <option value="ready" {{ $order->status === 'ready' ? 'selected' : '' }}>Ready</option>
-                                            <option value="completed" {{ $order->status === 'completed' ? 'selected' : '' }}>Completed</option>
-                                            <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                                        </select>
-                                    </form>
+                                    @if($order->status === 'confirmed' && $order->payment_status === 'paid')
+                                        <form action="{{ route('vendor.orders.ready', $order) }}" method="POST" class="inline">
+                                            @csrf
+                                            @method('PUT')
+                                            <button type="submit" class="text-sm bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700">
+                                                Mark as Ready
+                                            </button>
+                                        </form>
+                                    @else
+                                        <span class="text-sm px-2 py-1 rounded-md 
+                                            @switch($order->status)
+                                                @case('confirmed') bg-blue-100 text-blue-800 @break
+                                                @case('ready') bg-green-100 text-green-800 @break
+                                                @case('completed') bg-gray-100 text-gray-800 @break
+                                                @default bg-yellow-100 text-yellow-800
+                                            @endswitch">
+                                            {{ ucfirst($order->status) }}
+                                        </span>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $order->created_at->format('d M Y, H:i') }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -81,6 +88,7 @@
                     </tbody>
                 </table>
             </div>
+        </div>
     @endif
 </div>
 
@@ -91,3 +99,4 @@ function toggleOrderDetails(orderId) {
 }
 </script>
 @endsection
+

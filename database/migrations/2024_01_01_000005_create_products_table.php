@@ -23,7 +23,7 @@ return new class extends Migration
             $table->enum('status', ['active', 'inactive', 'out_of_stock'])->default('active');
             $table->boolean('is_featured')->default(false);
             $table->timestamps();
-            
+
             $table->foreign('vendor_id')->references('id')->on('vendors')->onDelete('cascade');
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('set null');
             $table->index('vendor_id');
@@ -41,4 +41,3 @@ return new class extends Migration
         Schema::dropIfExists('products');
     }
 };
-

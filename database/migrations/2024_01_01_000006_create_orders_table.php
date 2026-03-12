@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('payment_proof')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
-            
+
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('vendor_id')->references('id')->on('vendors')->onDelete('cascade');
             $table->index('user_id');
@@ -46,4 +46,3 @@ return new class extends Migration
         Schema::dropIfExists('orders');
     }
 };
-

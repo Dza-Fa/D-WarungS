@@ -14,13 +14,14 @@ class CheckoutController extends Controller
     {
         $cart = session()->get('cart', []);
         $vendors = Vendor::where('status', 'active')->get();
+
         return view('checkout.index', compact('cart', 'vendors'));
     }
 
     public function store(Request $request)
     {
         $cart = session()->get('cart', []);
-        
+
         if (empty($cart)) {
             return redirect()->route('cart.index')->with('error', 'Cart is empty!');
         }
@@ -32,18 +33,18 @@ class CheckoutController extends Controller
         $order = Order::create([
             'user_id' => auth()->id(),
             'vendor_id' => $vendorId,
-            'order_number' => 'ORD-' . date('Ymd') . '-' . str_pad(Order::count() + 1, 4, '0', STR_PAD_LEFT),
-            'subtotal' => array_sum(array_map(function($item) {
+            'order_number' => 'ORD-'.date('Ymd').'-'.str_pad(Order::count() + 1, 4, '0', STR_PAD_LEFT),
+            'subtotal' => array_sum(array_map(function ($item) {
                 return $item['price'] * $item['quantity'];
             }, $cart)),
-            'total_amount' => array_sum(array_map(function($item) {
+            'total_amount' => array_sum(array_map(function ($item) {
                 return $item['price'] * $item['quantity'];
             }, $cart)),
             'status' => 'pending',
             'payment_method' => $request->payment_method,
             'payment_status' => 'pending',
         ]);
-        
+
         foreach ($cart as $productId => $item) {
             OrderItem::create([
                 'order_id' => $order->id,
@@ -53,15 +54,16 @@ class CheckoutController extends Controller
                 'subtotal' => $item['price'] * $item['quantity'],
             ]);
         }
-        
+
         session()->forget('cart');
+
         return redirect()->route('checkout.success', $order->order_number)->with('success', 'Order placed successfully!');
     }
 
     public function success($orderNumber)
     {
         $order = Order::where('order_number', $orderNumber)->firstOrFail();
+
         return view('checkout.success', compact('order'));
     }
 }
-

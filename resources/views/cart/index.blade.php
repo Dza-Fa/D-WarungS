@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Shopping Cart - D-WarungS')
+@section('title', 'Keranjang Belanja - D-WarungS')
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Page Header -->
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Shopping Cart</h1>
-        <p class="mt-2 text-gray-600">Review your items before checkout</p>
+        <h1 class="text-3xl font-bold text-gray-900">Keranjang Belanja</h1>
+        <p class="mt-2 text-gray-600">Periksa barang Anda sebelum checkout</p>
     </div>
 
     @php
@@ -23,10 +23,10 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 text-gray-300 mx-auto mb-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
-            <h2 class="text-2xl font-semibold text-gray-700 mb-2">Your cart is empty</h2>
-            <p class="text-gray-500 mb-6">Looks like you haven't added any items to your cart yet.</p>
+            <h2 class="text-2xl font-semibold text-gray-700 mb-2">Keranjang Anda kosong</h2>
+            <p class="text-gray-500 mb-6">Sepertinya Anda belum menambahkan barang ke keranjang.</p>
             <a href="{{ route('vendors.index') }}" class="inline-block bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors">
-                Browse Vendors
+                Lihat Vendor
             </a>
         </div>
     @else
@@ -64,7 +64,7 @@
                                         <button type="button" onclick="this.parentNode.querySelector('input[name=quantity]').stepDown(); this.parentNode.submit()" class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-l-lg hover:bg-gray-100">
                                             -
                                         </button>
-                                        <input type="number" name="quantity" value="{{ $item['quantity'] }}" min="1" class="w-12 h-8 text-center border-t border-b border-gray-300 focus:outline-none focus:ring-orange-500 focus:border-orange-500">
+                                        <input type="number" name="quantity" value="{{ $item['quantity'] }}" min="1" class="w-12 h-8 text-center border-t border-b border-gray-300 focus:outline-none focus:ring-orange-500 focus:border-orange-500 no-spinners">
                                         <button type="button" onclick="this.parentNode.querySelector('input[name=quantity]').stepUp(); this.parentNode.submit()" class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-r-lg hover:bg-gray-100">
                                             +
                                         </button>
@@ -95,15 +95,15 @@
             <!-- Cart Summary -->
             <div class="lg:col-span-1">
                 <div class="bg-white rounded-xl shadow-sm p-6 sticky top-24">
-                    <h2 class="text-xl font-bold text-gray-900 mb-6">Order Summary</h2>
+                    <h2 class="text-xl font-bold text-gray-900 mb-6">Ringkasan Pesanan</h2>
                     
                     <div class="space-y-4 mb-6">
                         <div class="flex justify-between text-gray-600">
-                            <span>Subtotal ({{ count($cart) }} items)</span>
+                            <span>Subtotal ({{ count($cart) }} barang)</span>
                             <span>Rp {{ number_format($cartTotal, 0, ',', '.') }}</span>
                         </div>
                         <div class="flex justify-between text-gray-600">
-                            <span>Tax (10%)</span>
+                            <span>Pajak (10%)</span>
                             <span>Rp {{ number_format($cartTotal * 0.1, 0, ',', '.') }}</span>
                         </div>
                         <div class="border-t pt-4 flex justify-between text-lg font-bold text-gray-900">
@@ -114,20 +114,20 @@
                     
                     @auth
                         <a href="{{ route('checkout.index') }}" class="block w-full bg-orange-500 hover:bg-orange-600 text-white text-center py-3 rounded-lg font-semibold transition-colors">
-                            Proceed to Checkout
+                            Lanjut ke Checkout
                         </a>
                     @else
                         <a href="{{ route('login') }}" class="block w-full bg-orange-500 hover:bg-orange-600 text-white text-center py-3 rounded-lg font-semibold transition-colors">
-                            Login to Checkout
+                            Login untuk Checkout
                         </a>
                         <p class="text-center text-sm text-gray-500 mt-3">
-                            Don't have an account? 
-                            <a href="{{ route('register') }}" class="text-orange-600 hover:underline">Sign up</a>
+                            Belum punya akun? 
+                            <a href="{{ route('register') }}" class="text-orange-600 hover:underline">Daftar di sini</a>
                         </p>
                     @endauth
                     
                     <a href="{{ route('vendors.index') }}" class="block text-center text-gray-600 hover:text-orange-600 mt-4 text-sm">
-                        &larr; Continue Shopping
+                        &larr; Lanjut Belanja
                     </a>
                 </div>
             </div>

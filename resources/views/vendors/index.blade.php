@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'All Vendors - D-WarungS')
+@section('title', 'Semua Vendor - D-WarungS')
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Page Header -->
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">All Vendors</h1>
-        <p class="mt-2 text-gray-600">Browse all available food vendors</p>
+        <h1 class="text-3xl font-bold text-gray-900">Semua Vendor</h1>
+        <p class="mt-2 text-gray-600">Jelajahi semua vendor makanan yang tersedia</p>
     </div>
 
     @if($vendors->isEmpty())
@@ -15,9 +15,9 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
-            <p class="text-gray-500 text-lg">No vendors available at the moment.</p>
+            <p class="text-gray-500 text-lg">Tidak ada vendor yang tersedia saat ini.</p>
             <a href="{{ route('home') }}" class="mt-4 inline-block text-orange-600 hover:text-orange-700 font-medium">
-                Go back to home
+                Kembali ke halaman utama
             </a>
         </div>
     @else
@@ -38,7 +38,7 @@
                         <!-- Status Badge -->
                         @if($vendor->status === 'active')
                             <span class="absolute top-3 left-3 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
-                                Open
+                                Buka
                             </span>
                         @endif
                         
@@ -65,7 +65,7 @@
                             @endif
                             <div class="flex-1 min-w-0">
                                 <h3 class="font-semibold text-gray-900 truncate">{{ $vendor->name }}</h3>
-                                <p class="text-sm text-gray-500">{{ $vendor->categories->count() }} categories</p>
+                                <p class="text-sm text-gray-500">{{ $vendor->categories->count() }} kategori</p>
                             </div>
                         </div>
                         
@@ -85,7 +85,7 @@
                             @endif
                             
                             <span class="text-orange-600 font-medium group-hover:underline">
-                                View Menu &rarr;
+                                Lihat Menu &rarr;
                             </span>
                         </div>
                     </div>

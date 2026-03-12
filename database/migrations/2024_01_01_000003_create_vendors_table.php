@@ -24,7 +24,7 @@ return new class extends Migration
             $table->enum('status', ['pending', 'active', 'inactive', 'suspended'])->default('pending');
             $table->decimal('rating', 3, 2)->default(0);
             $table->timestamps();
-            
+
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->index('status');
             $table->index('user_id');
@@ -39,4 +39,3 @@ return new class extends Migration
         Schema::dropIfExists('vendors');
     }
 };
-

@@ -17,8 +17,8 @@ class VendorSeeder extends Seeder
     public function run(): void
     {
         $vendorUser = User::where('role', 'vendor')->first();
-        
-        if (!$vendorUser) {
+
+        if (! $vendorUser) {
             $vendorUser = User::firstOrCreate(
                 ['email' => 'vendor@dwarungs.com'],
                 [
@@ -30,7 +30,7 @@ class VendorSeeder extends Seeder
                 ]
             );
         }
-        
+
         Vendor::firstOrCreate(
             ['user_id' => $vendorUser->id],
             [
@@ -55,4 +55,3 @@ class VendorSeeder extends Seeder
         );
     }
 }
-

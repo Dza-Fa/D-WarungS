@@ -18,18 +18,18 @@ class ProductSeeder extends Seeder
     public function run(): void
     {
         $vendor = Vendor::first();
-        
-        if (!$vendor) {
+
+        if (! $vendor) {
             return;
         }
-        
+
         $category1 = Category::where('name', 'Makanan Utama')->first();
         $category2 = Category::where('name', 'Minuman')->first();
-        
-        if (!$category1 || !$category2) {
+
+        if (! $category1 || ! $category2) {
             return;
         }
-        
+
         // Product 1: Nasi Goreng Special
         Product::firstOrCreate(
             ['vendor_id' => $vendor->id, 'name' => 'Nasi Goreng Special'],
@@ -42,7 +42,7 @@ class ProductSeeder extends Seeder
                 'is_featured' => true,
             ]
         );
-        
+
         // Product 2: Mie Goreng Jawa
         Product::firstOrCreate(
             ['vendor_id' => $vendor->id, 'name' => 'Mie Goreng Jawa'],
@@ -53,7 +53,7 @@ class ProductSeeder extends Seeder
                 'status' => 'active',
             ]
         );
-        
+
         // Product 3: Es Teh Manis
         Product::firstOrCreate(
             ['vendor_id' => $vendor->id, 'name' => 'Es Teh Manis'],
@@ -64,7 +64,7 @@ class ProductSeeder extends Seeder
                 'status' => 'active',
             ]
         );
-        
+
         // Product 4: Es Jeruk
         Product::firstOrCreate(
             ['vendor_id' => $vendor->id, 'name' => 'Es Jeruk'],
@@ -77,4 +77,3 @@ class ProductSeeder extends Seeder
         );
     }
 }
-

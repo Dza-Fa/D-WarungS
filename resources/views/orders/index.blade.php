@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'My Orders - D-WarungS')
+@section('title', 'Pesanan Saya - D-WarungS')
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Page Header -->
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">My Orders</h1>
-        <p class="mt-2 text-gray-600">Track and manage your orders</p>
+        <h1 class="text-3xl font-bold text-gray-900">Pesanan Saya</h1>
+        <p class="mt-2 text-gray-600">Lacak dan kelola pesanan Anda</p>
     </div>
 
     @if($orders->isEmpty())
@@ -15,10 +15,10 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 text-gray-300 mx-auto mb-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
-            <h2 class="text-2xl font-semibold text-gray-700 mb-2">No orders yet</h2>
-            <p class="text-gray-500 mb-6">Start ordering your favorite food from our vendors!</p>
+            <h2 class="text-2xl font-semibold text-gray-700 mb-2">Belum ada pesanan</h2>
+            <p class="text-gray-500 mb-6">Mulai pesan makanan favorit Anda dari vendor kami!</p>
             <a href="{{ route('vendors.index') }}" class="inline-block bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors">
-                Browse Vendors
+                Lihat Vendor
             </a>
         </div>
     @else
@@ -30,25 +30,25 @@
                             <!-- Order Info -->
                             <div class="flex-1">
                                 <div class="flex items-center gap-3 mb-2">
-                                    <h3 class="text-lg font-semibold text-gray-900">Order #{{ $order->order_number }}</h3>
+                                    <h3 class="text-lg font-semibold text-gray-900">Pesanan #{{ $order->order_number }}</h3>
                                     @switch($order->status)
                                         @case('pending')
-                                            <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Pending</span>
+                                            <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Menunggu</span>
                                             @break
                                         @case('confirmed')
-                                            <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Confirmed</span>
+                                            <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Dikonfirmasi</span>
                                             @break
                                         @case('processing')
-                                            <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">Processing</span>
+                                            <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">Diproses</span>
                                             @break
                                         @case('ready')
-                                            <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">Ready</span>
+                                            <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">Siap</span>
                                             @break
                                         @case('completed')
-                                            <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Completed</span>
+                                            <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Selesai</span>
                                             @break
                                         @case('cancelled')
-                                            <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Cancelled</span>
+                                            <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Dibatalkan</span>
                                             @break
                                     @endswitch
                                 </div>
@@ -72,7 +72,7 @@
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                                         </svg>
-                                        {{ ucfirst($order->payment_method) }}
+                                        @if($order->payment_method === 'cash') Tunai @else Transfer @endif
                                     </span>
                                 </div>
                             </div>
@@ -81,10 +81,10 @@
                             <div class="flex items-center gap-4">
                                 <div class="text-right">
                                     <p class="text-lg font-bold text-gray-900">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</p>
-                                    <p class="text-sm text-gray-500">{{ $order->orderItems->count() }} items</p>
+                                    <p class="text-sm text-gray-500">{{ $order->orderItems->count() }} item</p>
                                 </div>
                                 <a href="{{ route('orders.show', $order) }}" class="bg-orange-100 hover:bg-orange-200 text-orange-700 px-4 py-2 rounded-lg font-medium transition-colors">
-                                    View Details
+                                    Lihat Detail
                                 </a>
                             </div>
                         </div>

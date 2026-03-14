@@ -28,9 +28,11 @@ class ProfileTest extends TestCase
         $response = $this
             ->actingAs($user)
             ->patch('/profile', [
+                '_token' => csrf_token(),
                 'name' => 'Test User',
                 'email' => 'test@example.com',
             ]);
+
 
         $response
             ->assertSessionHasNoErrors()
@@ -50,9 +52,11 @@ class ProfileTest extends TestCase
         $response = $this
             ->actingAs($user)
             ->patch('/profile', [
+                '_token' => csrf_token(),
                 'name' => 'Test User',
                 'email' => $user->email,
             ]);
+
 
         $response
             ->assertSessionHasNoErrors()
@@ -68,8 +72,10 @@ class ProfileTest extends TestCase
         $response = $this
             ->actingAs($user)
             ->delete('/profile', [
+                '_token' => csrf_token(),
                 'password' => 'password',
             ]);
+
 
         $response
             ->assertSessionHasNoErrors()
@@ -87,8 +93,10 @@ class ProfileTest extends TestCase
             ->actingAs($user)
             ->from('/profile')
             ->delete('/profile', [
+                '_token' => csrf_token(),
                 'password' => 'wrong-password',
             ]);
+
 
         $response
             ->assertSessionHasErrorsIn('userDeletion', 'password')

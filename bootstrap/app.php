@@ -15,7 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\CheckRole::class,
             'recaptcha' => \App\Http\Middleware\reCAPTCHA::class,
         ]);
+        // Rate limiting - use ->middleware('throttle:login') in routes
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();
+

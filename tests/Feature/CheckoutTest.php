@@ -11,6 +11,7 @@ class CheckoutTest extends TestCase
      */
     public function test_example(): void
     {
+        $this->withoutExceptionHandling();
         $response = $this->get('/');
 
         $response->assertStatus(200);

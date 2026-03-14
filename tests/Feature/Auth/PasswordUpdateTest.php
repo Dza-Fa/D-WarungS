@@ -19,10 +19,12 @@ class PasswordUpdateTest extends TestCase
             ->actingAs($user)
             ->from('/profile')
             ->put('/password', [
+                '_token' => csrf_token(),
                 'current_password' => 'password',
                 'password' => 'new-password',
                 'password_confirmation' => 'new-password',
             ]);
+
 
         $response
             ->assertSessionHasNoErrors()
@@ -39,10 +41,12 @@ class PasswordUpdateTest extends TestCase
             ->actingAs($user)
             ->from('/profile')
             ->put('/password', [
+                '_token' => csrf_token(),
                 'current_password' => 'wrong-password',
                 'password' => 'new-password',
                 'password_confirmation' => 'new-password',
             ]);
+
 
         $response
             ->assertSessionHasErrorsIn('updatePassword', 'current_password')

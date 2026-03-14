@@ -4,8 +4,13 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        <meta name="description" content="D-WarungS — Platform food court online Anda. Pesan makanan dari berbagai vendor lokal dengan mudah dan cepat.">
+        <meta property="og:title" content="@yield('title', config('app.name', 'D-WarungS'))">
+        <meta property="og:description" content="Food court favorit Anda, sekarang online! Temukan berbagai pilihan makanan dari vendor lokal.">
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="{{ url()->current() }}">
 
-        <title>{{ config('app.name', 'D-WarungS') }}</title>
+        <title>@yield('title', config('app.name', 'D-WarungS'))</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -15,6 +20,11 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased bg-gray-50">
+        {{-- Fix #18: Skip-to-content for keyboard users --}}
+        <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[9999] focus:bg-orange-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:font-medium">
+            Langsung ke konten utama
+        </a>
+
         <div class="min-h-screen flex flex-col">
             @include('layouts.navigation')
 
@@ -53,36 +63,36 @@
             @endif
 
             <!-- Page Content -->
-            <main class="flex-1">
+            <main id="main-content" class="flex-1">
                 @yield('content')
             </main>
 
-            <!-- Footer -->
-            <footer class="bg-white border-t border-gray-200 mt-12">
+            <!-- Footer — Fix #11: Indonesian headings, Fix #10: removed dead # links, Fix #20: removed mt-12 -->
+            <footer class="bg-white border-t border-gray-200">
                 <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
                         <div>
-                            <h3 class="font-semibold text-gray-900 mb-4">About D-WarungS</h3>
-                            <p class="text-sm text-gray-600">Your one-stop platform for ordering food from multiple vendors in your area.</p>
+                            <h3 class="font-semibold text-gray-900 mb-4">Tentang D-WarungS</h3>
+                            <p class="text-sm text-gray-600">Platform terpadu Anda untuk memesan makanan dari berbagai vendor lokal di sekitar Anda.</p>
                         </div>
                         <div>
-                            <h3 class="font-semibold text-gray-900 mb-4">Quick Links</h3>
+                            <h3 class="font-semibold text-gray-900 mb-4">Tautan Cepat</h3>
                             <ul class="space-y-2 text-sm">
-                                <li><a href="#" class="text-gray-600 hover:text-orange-600 transition-colors">About Us</a></li>
-                                <li><a href="#" class="text-gray-600 hover:text-orange-600 transition-colors">Contact</a></li>
-                                <li><a href="#" class="text-gray-600 hover:text-orange-600 transition-colors">FAQ</a></li>
+                                <li><a href="{{ route('vendors.index') }}" class="text-gray-600 hover:text-orange-600 transition-colors">Semua Vendor</a></li>
+                                <li><span class="text-gray-400 cursor-default">Tentang Kami <span class="text-xs">(segera hadir)</span></span></li>
+                                <li><span class="text-gray-400 cursor-default">Hubungi Kami <span class="text-xs">(segera hadir)</span></span></li>
                             </ul>
                         </div>
                         <div>
-                            <h3 class="font-semibold text-gray-900 mb-4">Legal</h3>
+                            <h3 class="font-semibold text-gray-900 mb-4">Hukum &amp; Privasi</h3>
                             <ul class="space-y-2 text-sm">
-                                <li><a href="#" class="text-gray-600 hover:text-orange-600 transition-colors">Privacy Policy</a></li>
-                                <li><a href="#" class="text-gray-600 hover:text-orange-600 transition-colors">Terms of Service</a></li>
+                                <li><span class="text-gray-400 cursor-default">Kebijakan Privasi <span class="text-xs">(segera hadir)</span></span></li>
+                                <li><span class="text-gray-400 cursor-default">Ketentuan Layanan <span class="text-xs">(segera hadir)</span></span></li>
                             </ul>
                         </div>
                     </div>
                     <div class="border-t border-gray-200 pt-8 text-center text-gray-500 text-sm">
-                        <p>&copy; {{ date('Y') }} D-WarungS. All rights reserved.</p>
+                        <p>&copy; {{ date('Y') }} D-WarungS. Hak cipta dilindungi.</p>
                     </div>
                 </div>
             </footer>

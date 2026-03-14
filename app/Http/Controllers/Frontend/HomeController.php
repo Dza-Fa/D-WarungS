@@ -9,8 +9,9 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $vendors = Vendor::where('status', 'active')->with('categories')->get();
+        $vendors = Vendor::where('status', 'active')->with('categories.products')->take(12)->get();
 
         return view('home', compact('vendors'));
     }
+
 }

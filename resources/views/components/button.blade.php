@@ -14,7 +14,7 @@
     @class([
         'font-medium rounded-lg transition-all duration-300 inline-flex items-center justify-center gap-2',
         'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500',
-        'active:scale-95 transform',
+        'motion-safe:active:scale-95 transform',
         // Size classes
         'px-3 py-1.5 text-xs sm:text-sm' => $size === 'sm',
         'px-4 py-2 text-sm sm:text-base' => $size === 'md',
@@ -41,7 +41,7 @@
         <span class="flex-shrink-0">{{ $icon }}</span>
     @endif
     
-    <span @class(['line-clamp-1' => !$fullWidth])>{{ $slot }}</span>
+    <span>{{ $slot }}</span>
     
     @if($icon && $iconPosition === 'right' && !$loading)
         <span class="flex-shrink-0">{{ $icon }}</span>

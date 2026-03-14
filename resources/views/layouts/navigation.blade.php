@@ -38,14 +38,12 @@
                         </a>
                     @endauth
                 </div>
+            </div>{{-- Fix #8: close left-flex div; Right Side and Mobile are now proper siblings --}}
 
             <!-- Right Side -->
             <div class="hidden sm:flex sm:items-center sm:ms-6 gap-2">
-                <!-- Cart Link -->
-                @php
-                    $cartCount = session()->get('cart', []) ? array_sum(array_column(session()->get('cart', []), 'quantity')) : 0;
-                @endphp
-                <a href="{{ route('cart.index') }}" @class([
+                <!-- Cart Link — Fix #5: aria-label, Fix #13: cartCount from ViewComposer -->
+                <a href="{{ route('cart.index') }}" aria-label="Keranjang belanja{{ $cartCount > 0 ? ' (' . $cartCount . ' item)' : '' }}" @class([
                     'relative inline-flex items-center px-3 py-2 rounded-md transition-colors border-b-2',
                     'text-orange-600 bg-orange-50 border-orange-600' => request()->routeIs('cart.*'),
                     'text-gray-700 border-transparent hover:text-orange-600 hover:border-orange-300' => !request()->routeIs('cart.*'),
@@ -94,12 +92,6 @@
                                 </x-dropdown-link>
                             @endif
                             
-                            @if(Auth::user()->role === 'admin')
-                                <x-dropdown-link :href="route('admin.dashboard')">
-                                    {{ __('Admin Dashboard') }}
-                                </x-dropdown-link>
-                            @endif
-                            
                             <x-dropdown-link :href="route('profile.edit')">
                                 {{ __('Profile') }}
                             </x-dropdown-link>
@@ -120,19 +112,16 @@
                 @endauth
             </div>
 
-            <!-- Mobile menu button & Cart -->
+            <!-- Mobile menu button & Cart — Fix #13: cartCount from ViewComposer -->
             <div class="flex sm:hidden items-center gap-2">
-                <!-- Mobile Cart -->
-                @php
-                    $mobileCartCount = session()->get('cart', []) ? array_sum(array_column(session()->get('cart', []), 'quantity')) : 0;
-                @endphp
-                <a href="{{ route('cart.index') }}" class="relative inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-orange-600 transition-colors">
+                <!-- Mobile Cart — Fix #5: aria-label added -->
+                <a href="{{ route('cart.index') }}" aria-label="Keranjang belanja{{ $cartCount > 0 ? ' (' . $cartCount . ' item)' : '' }}" class="relative inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-orange-600 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
-                    @if($mobileCartCount > 0)
+                    @if($cartCount > 0)
                         <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold h-4 w-4 rounded-full flex items-center justify-center">
-                            {{ $mobileCartCount }}
+                            {{ $cartCount }}
                         </span>
                     @endif
                 </a>

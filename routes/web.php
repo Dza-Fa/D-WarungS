@@ -90,8 +90,12 @@ Route::middleware(['auth', 'role:vendor'])->prefix('vendor')->name('vendor.')->g
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/vendors', [AdminVendorController::class, 'index'])->name('vendors.index');
+    Route::get('/vendors/create', [AdminVendorController::class, 'create'])->name('admin.vendors.create');
+    Route::post('/vendors', [AdminVendorController::class, 'store'])->name('admin.vendors.store');
     Route::put('/vendors/{vendor}/approve', [AdminVendorController::class, 'approve'])->name('vendors.approve');
+
     Route::put('/vendors/{vendor}/reject', [AdminVendorController::class, 'reject'])->name('vendors.reject');
+
     Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
     Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
     Route::put('/users/{user}/status', [AdminUserController::class, 'updateStatus'])->name('users.updateStatus');
